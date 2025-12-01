@@ -1,0 +1,42 @@
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Temporary diagram files
+diagram/.xdp_*
+
+# LaTeX build artifacts
+latex-codes/*.aux
+latex-codes/*.fdb_latexmk
+latex-codes/*.fls
+latex-codes/*.log
+latex-codes/*.out
+latex-codes/*.synctex.gz
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Model checkpoints and large files
+*.pt
+*.bin
+*.safetensors
+bangla-sentence-transformer-ft-matryoshka/
+
+# Dataset files (if large)
+*.json
+!train_dataset_bn.json
+!test_dataset_bn.json
+
+# Results and outputs
+base_model_results/
+ft_model_results/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE settings
+.vscode/
+.idea/
