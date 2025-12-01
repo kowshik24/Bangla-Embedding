@@ -1,0 +1,11 @@
+torch
+sentence-transformers
+datasets
+pandas
+numpy
+scipy
+matplotlib
+seaborn
+mteb
+tqdm
+python-dotenv
