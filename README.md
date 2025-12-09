@@ -1,7 +1,10 @@
 # Bangla Embedding Model Fine-Tuning and Evaluation
 
 This project provides a modular pipeline for fine-tuning, evaluating, and analyzing Bengali Sentence Transformer models using Matryoshka Representation Learning (MRL).
-
+## Fine-Tuned Models:
+1. https://huggingface.co/Kowshik24/bangla-sentence-transformer-ft-matryoshka-paraphrase-multilingual-mpnet-base-v2
+2. https://huggingface.co/Kowshik24/bangla-sentence-transformer-ft-matryoshka-distiluse-base-multilingual-cased-v1
+3. https://huggingface.co/Kowshik24/bangla-sentence-transformer-ft-matryoshka
 ## Project Structure
 
 ```text
