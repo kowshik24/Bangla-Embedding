@@ -8,6 +8,10 @@
 \usepackage{xltabular}
 \usepackage{array} % For better column formatting
 \usepackage{placeins}
+\setlength{\headheight}{21pt}
+\setlength{\emergencystretch}{2em}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
 % You need to upload a Bengali font file (like 'Kalpurush.ttf' or 'NotoSansBengali.ttf') 
 % to your project folder if you are on Overleaf.
@@ -154,7 +158,7 @@ The advent of bi-encoder architectures, popularized by Sentence-BERT (SBERT) \ci
     \caption{Comparison with Related Bengali and Low-Resource Retrieval Research}
     \label{tab:related_work_comparison}
     \small
-    \begin{tabularx}{\textwidth}{p{2.6cm}p{2.7cm}p{2.7cm}X X}
+    \begin{tabularx}{\textwidth}{L{2.6cm}L{2.7cm}L{2.7cm}Y Y}
         \toprule
         \textbf{Work} & \textbf{Main Approach} & \textbf{Evaluation Focus} & \textbf{Identified Gap} & \textbf{How This Work Addresses the Gap} \\
         \midrule
@@ -271,7 +275,7 @@ Because two retrieval pools are used for different analytical purposes, Table~\r
     \caption{Evaluation Regimes Used in This Study}
     \label{tab:evaluation_regimes}
     \small
-    \begin{tabularx}{\textwidth}{p{1.7cm}p{2.6cm}p{2.2cm}p{2.4cm}X}
+    \begin{tabularx}{\textwidth}{L{1.7cm}L{2.6cm}L{2.2cm}L{2.4cm}Y}
         \toprule
         \textbf{Regime} & \textbf{Purpose} & \textbf{Queries} & \textbf{Retrieval Pool} & \textbf{Relevance Definition} \\
         \midrule
@@ -334,6 +338,7 @@ Table \ref{tab:comprehensive_comparison} details the specific improvements and i
     The top row displays Ranking Quality (\textbf{NDCG@10}), while the bottom row displays Retrieval Coverage (\textbf{Recall@10}). 
     Fine-tuned models demonstrate superior performance and robustness to dimensionality reduction compared to pre-trained base models.}
     \label{fig:model_comparison}
+    \Description{A multi-panel line chart comparing base and fine-tuned dense embedding models across dimensions. Fine-tuned models have higher NDCG@10 and Recall@10 than base models, with MPNet strongest overall.}
 \end{figure*}
 
 
@@ -371,6 +376,39 @@ Table \ref{tab:comprehensive_comparison} presents a detailed breakdown of the re
 
 Most strikingly, the DistilUSE model moved from an almost unusable baseline (NDCG of 0.0037) to a strong post--fine-tuning score of 0.4213. MPNet reached the best dense performance, with an Accuracy@10 of 0.6913---meaning the correct item appeared in the top ten nearly 70\% of the time, up from 32\% in the base version. The Shihab17 model also saw a three-fold jump in Recall@10, rising from 0.1889 to 0.6323. The BM25 result, however, indicates that lexical retrieval remains a very competitive baseline on this dataset because many answerable questions share named entities and surface terms with Wikipedia passages.
 
+\subsection{MNRL-Only Ablation}
+
+To isolate the contribution of Matryoshka Representation Learning, we fine-tuned each architecture a second time using only Multiple Negatives Ranking Loss (MNRL), with the same train/test split, batch size, learning rate, epoch count, and evaluation metrics. Table~\ref{tab:mnrl_ablation} and Figure~\ref{fig:mnrl_ablation} compare this ablation against the full MNRL+MRL objective.
+
+The MNRL-only objective produces slightly higher full-dimensional NDCG@10 for some models, including MPNet (0.6340 vs. 0.6139). However, the MRL objective better preserves performance when embeddings are truncated. For MPNet, MRL retains 94.2\% of full-dimensional performance at 128d and 86.0\% at 64d, compared with 89.7\% and 77.7\% for MNRL-only. The same pattern is visible for DistilUSE, where 64d retention improves from 71.6\% under MNRL-only to 86.9\% under MRL. These results show that the main benefit of MRL is not simply improving the full-dimensional score; rather, it reshapes the representation so lower-dimensional prefixes remain useful.
+
+\begin{table*}[htbp]
+    \centering
+    \caption{Ablation of MNRL-only fine-tuning versus the full MNRL+MRL objective on the primary BanglaRQA test regime. Retention is computed relative to each model's full-dimensional NDCG@10.}
+    \label{tab:mnrl_ablation}
+    \small
+    \begin{tabular}{llccccc}
+        \toprule
+        \textbf{Model} & \textbf{Objective} & \textbf{Full Dim.} & \textbf{Full NDCG@10} & \textbf{128d NDCG@10} & \textbf{128d Ret.} & \textbf{64d Ret.} \\
+        \midrule
+        MPNet & MNRL+MRL & 768d & 0.6139 & 0.5783 & \textbf{94.2\%} & \textbf{86.0\%} \\
+        MPNet & MNRL only & 768d & \textbf{0.6340} & 0.5684 & 89.7\% & 77.7\% \\
+        Shihab17 & MNRL+MRL & 768d & 0.5638 & 0.5268 & \textbf{93.4\%} & \textbf{84.8\%} \\
+        Shihab17 & MNRL only & 768d & \textbf{0.5784} & \textbf{0.5356} & 92.6\% & 79.5\% \\
+        DistilUSE & MNRL+MRL & 512d & 0.4213 & 0.4004 & \textbf{95.0\%} & \textbf{86.9\%} \\
+        DistilUSE & MNRL only & 512d & \textbf{0.4526} & \textbf{0.4072} & 90.0\% & 71.6\% \\
+        \bottomrule
+    \end{tabular}
+\end{table*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{mnrl_mrl_ablation_retention.png}
+    \caption{MNRL-only ablation versus MNRL+MRL across embedding dimensions. The left panel uses embedding dimension as the X-axis and NDCG@10 as the Y-axis. The right panel uses embedding dimension as the X-axis and retention of full-dimensional NDCG@10 as the Y-axis. MRL improves low-dimensional retention, especially at 128d and 64d.}
+    \label{fig:mnrl_ablation}
+    \Description{Two line charts comparing MRL and MNRL-only training for MPNet, Shihab17, and DistilUSE. The MRL curves retain more performance at low dimensions.}
+\end{figure*}
+
 
 
 
@@ -382,7 +420,7 @@ We formulated the null hypothesis ($H_0$) that there is no significant differenc
 
 The results, summarized in Table~\ref{tab:significance}, strongly reject the null hypothesis. The fine-tuned \texttt{mpnet} model demonstrates a statistically significant improvement over the monolingual \texttt{shihab17} model ($p < 0.001$) and the distilled \texttt{distiluse} model ($p < 0.001$). The extremely low p-values (e.g., $1.0 \times 10^{-47}$ against DistilUSE) confirm that \texttt{mpnet}'s architectural advantages translate into robust, consistent gains across the vast majority of the test distribution.
 
-\begin{table}[h]
+\begin{table}[htbp]
     \centering
     \caption{Wilcoxon Signed-Rank Test Results (NDCG@10)}
     \label{tab:significance}
@@ -467,7 +505,7 @@ To understand the downstream impact of retrieval quality, we integrated the fine
     \caption{Bilingual Examples from the RAG Evaluation}
     \label{tab:bengali_rag_examples}
     \small
-    \begin{tabularx}{\textwidth}{p{3.2cm}p{1.8cm}X X p{1.2cm}}
+    \begin{tabularx}{\textwidth}{L{3.2cm}L{1.8cm}Y Y L{1.2cm}}
         \toprule
         \textbf{Query} & \textbf{Model} & \textbf{Top Retrieved Evidence} & \textbf{Generated Response} & \textbf{Result} \\
         \midrule
@@ -523,10 +561,11 @@ Crucially, even at the extreme compression of $64d$, the fine-tuned MPNet achiev
     \includegraphics[width=0.95\linewidth]{efficiency-tradeoff.png}
     \caption{\textbf{The Efficiency-Accuracy Trade-off.} The X-axis represents the memory footprint (MB) required to index the test corpus ($N=1124$), while the Y-axis shows retrieval performance (NDCG@10). The fine-tuned \texttt{mpnet-ft} model (blue line) exhibits a superior performance curve. The annotation highlights the operational ``sweet spot'' at 128 dimensions, offering high accuracy with an $83\%$ reduction in storage costs compared to the 768d baseline.}
     \label{fig:efficiency}
+    \Description{A line chart showing storage footprint on the X-axis and NDCG@10 on the Y-axis. The fine-tuned MPNet model maintains high retrieval performance as storage decreases, with 128 dimensions marked as the efficient operating point.}
 \end{figure}
 
 
-\begin{table}[h]
+\begin{table}[htbp]
     \centering
     \caption{Storage vs. Performance Analysis. Comparison of the Base model against the Fine-Tuned (FT) MPNet model across compression levels. At 128d, the model retains 96\% of its performance while reducing storage by $83\%$.}
     \label{tab:efficiency}
@@ -577,11 +616,11 @@ Table~\ref{tab:error_analysis} illustrates a specific case where \texttt{mpnet} 
 
 \textbf{False Negatives in High Compression:} At extreme compression (64d), \texttt{mpnet} occasionally failed to distinguish between negation and affirmation. In queries asking \textit{"Which feature is NOT present in..."}, the 64-dimensional vector lost the specific dimension encoding the negation, retrieving positive instances instead. This suggests that while Matryoshka learning is efficient, syntactic nuances like negation require higher dimensional bandwidth (minimum 128d).
 
-\begin{table}[h]
+\begin{table}[htbp]
     \caption{Error Analysis: Instance where Monolingual Model outperforms MPNet due to Tokenization}
     \label{tab:error_analysis}
     \small
-    \begin{tabularx}{\linewidth}{p{1.5cm}X}
+    \begin{tabularx}{\linewidth}{L{1.5cm}Y}
         \toprule
         \textbf{Query} & \bn{মুক্তিযুদ্ধভিত্তিক উপন্যাসের নাম কী?} \\
         \textit{(Trans.)} & \textit{What is the name of the Liberation War-based novel?} \\
@@ -602,7 +641,7 @@ Table~\ref{tab:error_analysis} illustrates a specific case where \texttt{mpnet} 
 
 While our results are promising, this study has several limitations. First, our fine-tuning and evaluation are restricted to the \textit{BanglaRQA} dataset, which primarily consists of factoid questions from Wikipedia. The models' performance on conversational queries, abstract reasoning, or domain-specific texts (e.g., medical or legal Bengali) remains untested. 
 
-Second, while we demonstrate the efficiency of Matryoshka Representation Learning, we did not perform an ablation study to quantify the specific contribution of the MRL objective versus the Multiple Negatives Ranking Loss alone. 
+Second, the BM25 baseline shows that lexical retrieval is very strong on this factoid Wikipedia benchmark. Therefore, our dense retrieval results should not be interpreted as replacing lexical methods in all settings; instead, they motivate hybrid dense--lexical systems, especially when semantic matching and low-dimensional vector deployment are both required.
 
 Finally, our error analysis indicates that while \texttt{mpnet} is superior, it still struggles with negation and complex morphological compounds at high compression rates (64d), suggesting that a minimum dimensionality of 128d is a hard constraint for semantic nuance.
 
@@ -615,13 +654,13 @@ This work utilizes the publicly available BanglaRQA dataset, derived from Wikipe
 
 This study provided a comparative evaluation of three distinct embedding architectures for Bengali semantic retrieval. Our results demonstrate that while specialized fine-tuning improves all dense models, the underlying architecture sets the dense-retrieval performance ceiling. The \texttt{mpnet-base} model, when fine-tuned using our proposed Matryoshka-MNRL strategy, outperforms both the monolingual and distilled dense models. The added BM25 baseline also shows that lexical retrieval remains very strong for factoid Wikipedia QA, motivating future hybrid dense-lexical retrieval rather than a purely dense replacement.
 
-We further demonstrated that high-dimensional embeddings are often unnecessary for effective retrieval in Bengali. Our saturation and retention analysis confirms that models can maintain over 95\% of their peak performance even when compressed to 128 dimensions. For practitioners building Bengali RAG applications, this suggests that the \texttt{mpnet} architecture, combined with dimensionality reduction, offers the optimal balance of accuracy and computational efficiency.
+We further demonstrated that high-dimensional embeddings are often unnecessary for effective retrieval in Bengali. Our saturation, retention, and MNRL-only ablation analyses confirm that MRL is most valuable for preserving retrieval quality under dimensionality reduction. For practitioners building Bengali RAG applications, this suggests that the \texttt{mpnet} architecture, combined with dimensionality-aware training, offers a strong balance of accuracy and computational efficiency.
 
 %%
 %% The acknowledgments section is defined using the "acks" environment
 %% (and NOT an unnumbered section).
 \begin{acks}
-The authors acknowledge the open-source contributions of the model creators for \texttt{shihab17/bangla-sentence-transformer}, \texttt{sentence-transformers}, and the curators of the BanglaRQA dataset.
+The authors acknowledge the open-source model creators, the \texttt{sentence-transformers} project, and the BanglaRQA dataset curators.
 \end{acks}
 
 %%
@@ -692,7 +731,7 @@ Models were fine-tuned on a single NVIDIA T4 (16GB) GPU. The training duration f
 \subsection{Hyperparameters}
 We utilized a unified hyperparameter configuration across all three models to isolate architectural differences. We employed the \texttt{MatryoshkaLoss} wrapper over the \texttt{MultipleNegativesRankingLoss} (MNRL). The specific configuration is detailed in Table~\ref{tab:hyperparameters}.
 
-\begin{table}[h]
+\begin{table}[htbp]
     \caption{Hyperparameters for Fine-Tuning}
     \label{tab:hyperparameters}
     \centering
@@ -721,5 +760,24 @@ The BanglaRQA dataset was processed as follows:
     \item \textbf{Training Set:} Combined original Train and Validation splits, filtered for \texttt{is\_answerable=1}. Total pairs: 10,134.
     \item \textbf{Test Set:} Original Test split, filtered for \texttt{is\_answerable=1}. Total pairs: 1,124.
 \end{itemize}
+
+\section{Response to Reviewers}
+
+\subsection*{Response to Reviewer 1}
+\begin{enumerate}
+    \item \textbf{Axis captions in figures.} We revised the graphical figures so that plots with quantitative content include explicit X-axis and Y-axis labels. This is reflected in the updated dense-retrieval, base-versus-fine-tuned, RAGAS, and ablation figures.
+    \item \textbf{Non-English text.} We added English transliterations or translations where Bengali text appears in examples, including dataset samples and error-analysis cases. Bengali examples are now accompanied by English glosses so that international readers can follow the content.
+    \item \textbf{Comparison with related work.} We added Table~\ref{tab:related_work_comparison}, which contrasts the proposed work with BanglaRQA, Bangla SBERT, BanglaEmbed, prior Bengali QA work by the authors, and broader low-resource RAG research. The table explicitly states the research gaps and how the proposed study addresses them.
+    \item \textbf{Relation to prior author work.} We clarified that the authors' previous Bengali Llama QA work focused on generation quality, whereas the present paper targets the retrieval layer that determines the quality of contexts supplied to a generator.
+    \item \textbf{References.} We reviewed the citation list and retained peer-reviewed published references where available, including EMNLP Findings, NeurIPS, ACL, ICASSP, and IEEE conference publications.
+\end{enumerate}
+
+\subsection*{Response to Reviewer 2}
+\begin{enumerate}
+    \item \textbf{Evaluation regimes.} We added Table~\ref{tab:evaluation_regimes} and revised the abstract to distinguish the primary 1,124-query BanglaRQA test regime from the separate 1,124-document deployment-efficiency regime. The abstract now states that NDCG@10=0.6139 belongs to the primary dense comparison, while NDCG@10=0.8114 belongs to the deployment-efficiency analysis.
+    \item \textbf{BM25 baseline.} We added a BM25 lexical baseline on the same BanglaRQA test split and reported it in Table~\ref{tab:comprehensive_comparison}. BM25 reaches NDCG@10=0.9142 on this factoid Wikipedia benchmark, so the discussion now frames MPNet as the strongest dense model rather than claiming dense retrieval universally dominates lexical retrieval.
+    \item \textbf{MNRL-only ablation.} We fine-tuned all three architectures using MNRL without the Matryoshka wrapper and added Table~\ref{tab:mnrl_ablation} and Figure~\ref{fig:mnrl_ablation}. The results show that MNRL-only can slightly improve full-dimensional NDCG@10, while MRL provides stronger low-dimensional retention, especially at 128d and 64d.
+    \item \textbf{RAG evaluation setup.} We expanded the RAG section to specify the generator model, retrieval top-k, chunking setup, prompt behavior, decoding settings, evaluated query count, and RAGAS metric implementation. We also added aggregate RAGAS results with approximate 95\% confidence intervals rather than relying only on examples.
+\end{enumerate}
 
 \end{document}
