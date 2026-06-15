@@ -1,0 +1,32 @@
+[project]
+name = "bangla-embedding"
+version = "0.1.0"
+description = "Bengali semantic retrieval experiments and TALLIP revision workflows"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "accelerate>=1.1.0",
+    "datasets>=2.20.0",
+    "matplotlib>=3.8.0",
+    "mteb>=1.14.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "python-dotenv>=1.0.0",
+    "scikit-learn>=1.4.0",
+    "scipy>=1.11.0",
+    "seaborn>=0.13.0",
+    "sentence-transformers>=3.0.0",
+    "torch>=2.2.0",
+    "tqdm>=4.66.0"
+]
+
+[project.optional-dependencies]
+rag = [
+    "faiss-cpu>=1.8.0",
+    "langchain>=0.2.0",
+    "langchain-community>=0.2.0",
+    "langchain-openai>=0.1.0",
+    "ragas>=0.1.0"
+]
+
+[tool.uv]
+package = false

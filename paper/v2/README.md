@@ -11,10 +11,16 @@ This folder contains the reviewer-response revision artifacts.
 
 ## Reproduction commands
 
-From the repository root:
+From the repository root, create the uv environment and install dependencies:
 
 ```bash
-python3 paper/v2/scripts/run_bm25_baseline.py \
+uv sync
+```
+
+Run commands through uv so the correct environment is always used:
+
+```bash
+uv run python paper/v2/scripts/run_bm25_baseline.py \
   --train paper/v2/data/BanglaRQA/Train.json \
   --validation paper/v2/data/BanglaRQA/Validation.json \
   --test paper/v2/data/BanglaRQA/Test.json \
@@ -22,14 +28,27 @@ python3 paper/v2/scripts/run_bm25_baseline.py \
 ```
 
 ```bash
-paper/v2/.venv/bin/python paper/v2/scripts/run_mnrl_ablation.py \
+uv run python paper/v2/scripts/run_mnrl_ablation.py \
   --train paper/v2/data/BanglaRQA/Train.json \
   --validation paper/v2/data/BanglaRQA/Validation.json \
   --test paper/v2/data/BanglaRQA/Test.json \
   --model-map paper/v2/config/model_map.json \
   --output-dir paper/v2/ablation_models \
   --results-dir paper/v2/results \
-  --device mps
+  --device cuda
+```
+
+For MPNet only:
+
+```bash
+uv run python paper/v2/scripts/run_mnrl_ablation.py \
+  --train paper/v2/data/BanglaRQA/Train.json \
+  --validation paper/v2/data/BanglaRQA/Validation.json \
+  --test paper/v2/data/BanglaRQA/Test.json \
+  --model-map paper/v2/config/model_map_mpnet.json \
+  --output-dir paper/v2/ablation_models \
+  --results-dir paper/v2/results \
+  --device cuda
 ```
 
 Compile from `paper/v2/SourceFiles`:
