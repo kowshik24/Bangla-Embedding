@@ -27,10 +27,21 @@ bangla-sentence-transformer-ft-matryoshka/
 *.json
 !train_dataset_bn.json
 !test_dataset_bn.json
+!paper/v2/config/model_map.json
+!paper/v2/config/model_map_mpnet.json
+!paper/v2/data/BanglaRQA/*.json
 
 # Results and outputs
 base_model_results/
 ft_model_results/
+paper/v2/ablation_models/
+paper/v2/hf_cache_test/
+paper/v2/hf_models/
+paper/v2/SourceFiles/*.aux
+paper/v2/SourceFiles/*.log
+paper/v2/SourceFiles/*.out
+paper/v2/SourceFiles/comment.cut
+paper/v2/SourceFiles/manuscript.pdf
 
 # Virtual environment
 venv/
@@ -43,3 +54,6 @@ env/
 
 # Environment files
 .env
+
+# macOS metadata
+.DS_Store

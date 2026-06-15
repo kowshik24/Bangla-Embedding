@@ -1,0 +1,725 @@
+\documentclass[manuscript,screen,review]{acmart}
+\usepackage{grffile} %% <-- ADDED THIS LINE TO FIX FILENAME UNDERSCORE ERRORS
+
+\usepackage{fontspec}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{booktabs} % For professional table borders
+\usepackage{xltabular}
+\usepackage{array} % For better column formatting
+\usepackage{placeins}
+
+% You need to upload a Bengali font file (like 'Kalpurush.ttf' or 'NotoSansBengali.ttf') 
+% to your project folder if you are on Overleaf.
+% If you don't have a font file, you can try using the default system font if available, 
+% but uploading a .ttf file is safer.
+\newfontfamily\bengalifont[Script=Bengali]{NotoSansBengali-Regular.ttf} % Make sure filename matches
+\newcommand{\bn}[1]{{\bengalifont #1}}
+
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information.
+\setcopyright{acmlicensed}
+\copyrightyear{2024}
+\acmYear{2024}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[Conference Name]{Make sure to enter the correct
+  conference title from your rights confirmation email}{Dates}{City, Country}
+\acmISBN{978-1-4503-XXXX-X/18/06}
+
+%%
+%% Submission ID.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Optimizing Semantic Retrieval for Bengali: A Comparative Analysis of Monolingual and Multilingual Embeddings with Matryoshka Representation Learning}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+\author{Koshik Debanath}
+\email{koshik.debanath@gmail.com}
+\affiliation{%
+  \institution{Rajshahi University of Engineering and Technology}
+  \department{Department Computer Science and Engineering}
+  \city{Rajshahi-6204}
+  \country{Bangladesh}
+}
+
+\author{Azmain Yakin Srizon}
+\email{azmainsrizon@gmail.com}
+\affiliation{%
+  \institution{Rajshahi University of Engineering and Technology}
+  \department{Department Computer Science and Engineering}
+  \city{Rajshahi-6204}
+  \country{Bangladesh}
+}
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers.
+\renewcommand{\shortauthors}{Koshik and Azmain}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+% \begin{abstract}
+% The efficacy of Retrieval-Augmented Generation (RAG) systems hinges critically on the underlying embedding model's ability to map queries and documents to a shared semantic space. This challenge is magnified in lower-resource languages like Bengali, where general-purpose multilingual models often fail to capture sufficient nuance. In this study, we present a rigorous comparative analysis of three distinct embedding architectures: a monolingual Bengali model (\texttt{shihab17}), a multilingual distilled model (\texttt{distiluse}), and a paraphrase-centric model (\texttt{mpnet-base}). We fine-tune these models on the BanglaRQA dataset utilizing a composite objective of Multiple Negatives Ranking Loss and Matryoshka Representation Learning (MRL). Our evaluation uncovers significant performance disparities. While the monolingual baseline initially struggles, fine-tuning yields a 341.7\% improvement in NDCG@10. However, the fine-tuned \texttt{mpnet} model emerges as the superior architecture, achieving a state-of-the-art NDCG@10 of 0.6139 and demonstrating robust generalization on external MTEB benchmark tasks. Furthermore, our Matryoshka analysis demonstrates that MPNet retains over 95\% of its performance at just 128 dimensions, offering a viable path for efficient deployment in resource-constrained environments.
+% \end{abstract}
+
+
+\begin{abstract}
+Effective semantic retrieval remains the primary bottleneck for Bengali Retrieval-Augmented Generation (RAG) systems. While general-purpose multilingual models exist, they often lack the specific semantic alignment required for high-precision tasks. This paper conducts a comparative study of three embedding architectures---monolingual (\texttt{shihab17}), distilled multilingual (\texttt{distiluse}), and paraphrase-focused (\texttt{mpnet})---to identify the optimal foundation for Bengali retrieval. We fine-tune these models on BanglaRQA using Multiple Negatives Ranking Loss wrapped with Matryoshka Representation Learning (MRL). On the primary BanglaRQA test regime of 1,124 answerable queries, the fine-tuned \texttt{mpnet} model achieves the strongest dense-retrieval result, with NDCG@10 of \textbf{0.6139}, statistically outperforming the monolingual baseline (p < 0.001). A lexical BM25 baseline is also strong on this factoid Wikipedia setting, reaching NDCG@10 of \textbf{0.9142}; this result clarifies that dense fine-tuning is most relevant where semantic matching, compression, and downstream RAG integration are required rather than as a universal replacement for lexical retrieval. In a separate 1,124-document deployment-efficiency regime, MPNet-FT reaches NDCG@10 of \textbf{0.8114}. The efficiency analysis further shows that the MRL-trained MPNet model retains \textbf{96.1\%} of its 768-dimensional retrieval effectiveness at just \textbf{128 dimensions}, reducing vector storage by 83.3\% while preserving most retrieval quality.
+\end{abstract}
+
+
+%%
+%% The code below is generated by the tool at http://dl.acm.org/ccs.cfm.
+%%
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10010147.10010178.10010179</concept_id>
+       <concept_desc>Computing methodologies~Natural language processing</concept_desc>
+       <concept_significance>500</concept_significance>
+   </concept>
+   <concept>
+       <concept_id>10002951.10003317.10003338</concept_id>
+       <concept_desc>Information systems~Retrieval models and ranking</concept_desc>
+       <concept_significance>500</concept_significance>
+   </concept>
+   <concept>
+       <concept_id>10010147.10010257.10010293.10010294</concept_id>
+       <concept_desc>Computing methodologies~Neural networks</concept_desc>
+       <concept_significance>300</concept_significance>
+   </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computing methodologies~Natural language processing}
+\ccsdesc[500]{Information systems~Retrieval models and ranking}
+\ccsdesc[300]{Computing methodologies~Neural networks}
+
+%%
+%% Keywords.
+\keywords{Bengali Language, Sentence Embeddings, Fine-Tuning, Information Retrieval, Matryoshka Representation Learning, RAG}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Introduction}
+
+Large Language Models (LLMs) have demonstrated transformative capabilities across a spectrum of natural language tasks. However, their practical deployment is often hampered by two critical weaknesses: a tendency to "hallucinate" facts not present in their training data and an inability to access timely or proprietary information. Retrieval-Augmented Generation (RAG) has emerged as the dominant architectural paradigm to address these shortcomings \cite{lewis2020retrieval, gao2023survey}. By dynamically retrieving relevant context from an external knowledge base before generation, RAG systems ground LLM outputs in factual reality, significantly mitigating hallucinations and enhancing their utility.
+
+The efficacy of any RAG system, however, hinges critically on its retrieval component, which is typically powered by dense vector embeddings. While this technology is mature for high-resource languages like English, it remains a significant bottleneck for the vast majority of the world's languages. This challenge is particularly acute for Bengali, a language spoken by over 300 million people. Despite its large speaker base, Bengali is considered a "low-resource" language in the context of deep learning, suffering from a scarcity of curated datasets, commercially incentivized models, and research focus compared to English. Consequently, the choice of an embedding model is often driven by availability rather than empirical performance.
+
+While multilingual models like XLM-RoBERTa \cite{conneau2019unsupervised} provide a strong foundation, they are often generalists that lack the specific semantic alignment required for question-answering tasks. Conversely, monolingual models may capture linguistic nuances but lack the architectural robustness of larger multilingual checkpoints. This dichotomy presents a research gap: identifying which architecture yields the highest fidelity for Bengali semantic retrieval when subjected to specialized fine-tuning.
+
+This paper addresses this gap through a comprehensive study. We select three diverse architectures: a dedicated Bengali transformer, a lightweight distilled multilingual model, and a robust MPNet-based model. We subject all three to an identical fine-tuning regimen on the BanglaRQA dataset \cite{ekram2022banglarqa}, employing Matryoshka Representation Learning (MRL) \cite{kusupati2022matryoshka} to enforce efficiency. Our contributions are threefold. First, we provide a comparative benchmark of these architectures, demonstrating that while all benefit from fine-tuning, the architectural priors of the \texttt{mpnet} model offer superior ceiling performance. Second, we validate the effectiveness of MRL through extensive saturation and retention analysis. Third, we perform a qualitative analysis of downstream RAG performance, correlating retrieval metrics with generation faithfulness.
+
+\section{Related Work}
+
+\subsection{Retrieval-Augmented Generation (RAG)}
+The core concept of augmenting generation with external knowledge, pioneered by \cite{lewis2020retrieval}, has evolved into a complex and rapidly advancing subfield of NLP. The academic discourse has broadly categorized its evolution into distinct phases. Early implementations, often referred to as "Naive RAG," employed a straightforward retrieve-then-read pipeline where a user query directly drives a semantic search, and the top-k retrieved documents are concatenated into the LLM's context window. While effective, this approach is susceptible to issues like misaligned retrieval and context overload \cite{hu2024comprehensive}.
+
+Recent literature details a shift towards "Advanced RAG," which incorporates sophisticated pre- and post-retrieval strategies. These include query transformations (e.g., query rewriting, expansion), advanced indexing techniques (e.g., multi-vector retrieval), and re-ranking mechanisms to refine retrieved results before generation \cite{gao2023survey}. The current state-of-the-art is moving towards "Modular RAG," where the pipeline is deconstructed into interconnected modules that can be dynamically orchestrated based on query complexity, showcasing the field's progression towards more robust and adaptive systems. Our work focuses on the foundational retrieval module, as its optimization is a prerequisite for the success of any advanced RAG strategy, particularly in non-English contexts.
+
+\subsection{Semantic Search in Low-Resource Languages}
+While multilingual models offer a zero-shot baseline for many languages, their performance in specialized retrieval tasks for low-resource languages is often suboptimal. This performance gap stems from several factors, including inefficient tokenization of morphologically rich languages, semantic drift where word meanings are biased towards high-resource training data, and a lack of cultural and domain-specific context \cite{lin2024improving}. Recent work has begun to tackle these challenges directly within the Bengali language ecosystem. For example, \cite{debanath2025advancing} explored fine-tuning a generative model, Llama, for Bengali question-answering, establishing new benchmarks. However, such generative approaches are fundamentally dependent on the quality of retrieved context. An inaccurate or irrelevant context will invariably lead to a poor or hallucinated response, regardless of the generator's quality.
+
+This dependency underscores the criticality of a robust retrieval component. Addressing this challenge has become a critical area of research. For instance, \cite{lin2024improving} demonstrates that fine-tuning multilingual models on even small, curated datasets in the target language can yield substantial performance gains. Other innovative approaches aim to overcome data scarcity through novel training paradigms. A notable example is Retrieval-Augmented Retrieval (RAR) \cite{yasunaga2022retrieval}, which uses a generate-then-retrieve cycle to synthesize training data, a technique that holds promise for languages where labeled pairs are scarce. Our study contributes to this area by providing a rigorous empirical benchmark that quantifies the impact of task-specific fine-tuning on diverse model architectures for Bengali, offering a clear pathway for practitioners to move beyond unreliable zero-shot baselines.
+
+\subsection{Advancements in Sentence Embeddings for Bengali}
+The Bengali NLP landscape has matured significantly with the development of foundational models. Early efforts produced models like BanglaBERT \cite{bhattacharjee2020banglabert}, which was pre-trained on a large Bengali corpus using a Masked Language Modeling (MLM) objective. While powerful for natural language understanding tasks, the pooling of raw token embeddings from such models is not inherently optimized for semantic similarity tasks. This limitation spurred the development of dedicated sentence-transformer models.
+
+The advent of bi-encoder architectures, popularized by Sentence-BERT (SBERT) \cite{reimers2019sentence}, marked a paradigm shift. This methodology has been actively adopted for Bengali, with a common strategy being cross-lingual knowledge distillation from powerful English teacher models. For instance, the \texttt{shihab17/bangla-sentence-transformer} used in our study was developed by fine-tuning an XLM-RoBERTa student model on machine-translated datasets, using a multilingual SBERT model as the teacher \cite{uddin2024bangla}. Similarly, the BanglaEmbed models were created using a comparable distillation technique to produce lightweight and efficient sentence encoders \cite{kabir2024banglaembed}. Our work builds directly upon this foundation. By applying a unified, task-specific fine-tuning regimen to these and other architectures, we aim to move beyond the initial pre-training and isolate the impact of the base model's architectural priors on final retrieval performance for a demanding question-answering task.
+
+\begin{table*}[t]
+    \centering
+    \caption{Comparison with Related Bengali and Low-Resource Retrieval Research}
+    \label{tab:related_work_comparison}
+    \small
+    \begin{tabularx}{\textwidth}{p{2.6cm}p{2.7cm}p{2.7cm}X X}
+        \toprule
+        \textbf{Work} & \textbf{Main Approach} & \textbf{Evaluation Focus} & \textbf{Identified Gap} & \textbf{How This Work Addresses the Gap} \\
+        \midrule
+        BanglaRQA \cite{ekram2022banglarqa} & Bengali Wikipedia QA benchmark construction & Reading-comprehension QA dataset quality & Provides data but does not compare embedding architectures for dense retrieval & Uses BanglaRQA as a retrieval benchmark with controlled model comparisons and per-query significance testing \\
+        Bangla SBERT \cite{uddin2024bangla} & Multilingual knowledge distillation for Bengali sentence embeddings & Sentence similarity and embedding quality & Does not isolate task-specific retrieval fine-tuning against multilingual alternatives & Fine-tunes the Bengali SBERT model and compares it with DistilUSE and MPNet under identical retrieval metrics \\
+        BanglaEmbed \cite{kabir2024banglaembed} & Efficient Bengali sentence embeddings through distillation & General embedding efficiency & Efficiency is model-level rather than a post-training dimensionality trade-off for RAG retrieval & Evaluates Matryoshka truncation from 768d to 64d and reports storage-performance retention \\
+        Prior Bengali Llama QA by the authors \cite{debanath2025advancing} & Generative QA fine-tuning & Answer generation quality & Assumes retrieved context quality rather than optimizing the retrieval layer & Focuses specifically on the retriever bottleneck that controls context quality before generation \\
+        Low-resource RAG \cite{lin2024improving} & Adapting RAG methods to low-resource languages & Retrieval-augmented generation quality & Broad low-resource setting; Bengali-specific architecture and compression behavior remain unclear & Provides a Bengali-specific comparison, deployment-efficiency analysis, and RAGAS downstream evaluation \\
+        \bottomrule
+    \end{tabularx}
+\end{table*}
+
+\subsection{Efficient Representation Learning}
+As vector databases grow to billions of entries, the dimensionality of embeddings becomes a critical factor for storage costs, memory usage, and query latency. Matryoshka Representation Learning (MRL) \cite{kusupati2022matryoshka} offers a principled solution to this challenge.
+
+Formally, MRL reframes representation learning as a multi-scale optimization problem. The central idea is to learn a high-dimensional embedding vector, $z \in \mathbb{R}^d$, such that its prefixes are also effective, lower-dimensional representations. To achieve this, MRL defines a set of nested "Matryoshka" dimensions, $M \subset \{1, \dots, d\}$, typically chosen by halving the dimensionality (e.g., $M = \{d, d/2, d/4, \dots, 64\}$). The model, parameterized by $\theta_F$, learns a function $F(\cdot; \theta_F)$ that maps an input $x$ to the embedding $z$.
+
+The key innovation lies in modifying the training objective. Instead of calculating the loss only on the final $d$-dimensional embedding, MRL computes and aggregates the loss at each of the chosen granularities $m \in M$. For a given training objective $\mathcal{L}_{\text{task}}$, such as the Multiple Negatives Ranking Loss used in our work, the MRL objective for a single data point $(x_i, y_i)$ is formulated as a weighted sum over the nested dimensions:
+\begin{equation}
+\min_{\theta_F, \{W^{(m)}\}_{m \in M}} \frac{1}{N} \sum_{i=1}^{N} \sum_{m \in M} c_m \cdot \mathcal{L}_{\text{task}}\left(W^{(m)} \cdot F(x_i; \theta_F)_{1:m}, y_i\right)
+\end{equation}
+Here, $F(x_i; \theta_F)_{1:m}$ denotes the output embedding truncated to its first $m$ dimensions, $W^{(m)}$ is a task-specific classification head for that dimension, and $c_m$ are scaling coefficients (typically set to 1). By optimizing this composite loss, the model is explicitly forced to encode the most critical semantic information into the initial dimensions of the embedding vector, with finer details layered into subsequent dimensions.
+
+This approach stands in contrast to traditional dimensionality reduction techniques such as Principal Component Analysis (PCA) or autoencoders, which require a separate, post-hoc training step and can result in significant information loss. MRL's primary advantage is that it integrates efficiency directly into the training objective, enabling flexible, on-the-fly truncation at inference time. An application can use the full 768-dimensional vector for high-precision tasks and a truncated 128-dimensional prefix for low-latency lookups, all from a single learned representation. Our study is the first to systematically apply and evaluate MRL for the Bengali language, demonstrating its viability for creating highly efficient yet powerful retrieval systems.
+
+% \newpage
+
+\section{Methodology}
+
+Our experimental framework involves fine-tuning three distinct base models using a unified training strategy to ensure a fair comparison. See the figure \ref{fig:architecture}.
+
+\begin{figure}[!ht]
+    \centering
+    % Placeholder for your Architecture Diagram
+    \includegraphics[width=\linewidth]{architechture.pdf}
+    \caption{The comparative fine-tuning architecture. Three distinct base models are trained using a shared pipeline involving Siamese networks, Mean Pooling, and a Matryoshka-wrapped Multiple Negatives Ranking Loss function.}
+    \label{fig:architecture}
+    \Description{A block diagram showing the flow of data. Input sentences are fed into Base Models (Shihab17, Distiluse, MPNet). These pass through Siamese Networks with Shared Weights. The output goes to Mean Pooling, then to a Matryoshka Loss function layer which calculates Multiple Negatives Ranking Loss across varying dimensions.}
+\end{figure}
+
+\subsection{Base Models}
+We selected three models representing different points on the efficiency-performance spectrum.
+
+\textit{shihab17/bangla-sentence-transformer:} A monolingual model based on the XLM-R architecture, created via multilingual knowledge distillation \cite{uddin2024bangla}. It represents the specialized Bengali approach, producing 768-dimensional vectors.
+
+\textit{distiluse-base-multilingual-cased-v1:} A knowledge-distilled version of the Universal Sentence Encoder \cite{reimers2019sentencebert}. It produces 512-dimensional vectors and is designed for high-throughput, low-latency applications.
+
+\textit{paraphrase-multilingual-mpnet-base-v2:} A model based on the MPNet architecture, trained on a massive multilingual corpus of paraphrase pairs \cite{reimers2019sentencebert}. It is generally regarded as having stronger semantic modeling capabilities than standard BERT or RoBERTa models.
+
+\subsection{Dataset Preparation}
+We utilized the BanglaRQA dataset \cite{ekram2022banglarqa}, comprising human-annotated questions and answers from Bengali Wikipedia. In the public Hugging Face release used for this revision, filtering for answerable questions yields 9,008 training pairs, 1,126 validation pairs, and 1,124 held-out test pairs. We combine the training and validation splits for fine-tuning, producing 10,134 positive pairs. The test split remains held out for evaluation.
+
+\begin{table*}[ht!]
+    \centering
+    \caption{BanglaRQA Dataset Samples}
+    \label{tab:banglarqa_samples}
+    \small % Slightly smaller font to fit width
+    \setlength\tabcolsep{3pt} % Reduce padding between columns
+    \renewcommand{\arraystretch}{1.2} % Better row spacing
+    
+    % Using tabularx to fit exactly to text width
+    \begin{tabularx}{\textwidth}{
+        >{\raggedright\arraybackslash\scriptsize}p{1.2cm}   % Passage ID
+        >{\raggedright\arraybackslash\scriptsize}p{1.5cm}   % Title
+        >{\scriptsize}X                                      % Context (Takes remaining space)
+        >{\raggedright\arraybackslash\scriptsize}p{1.2cm}   % Q. ID
+        >{\raggedright\arraybackslash\scriptsize}p{2.2cm}   % Question
+        >{\centering\arraybackslash\scriptsize}p{0.6cm}     % Ans?
+        >{\raggedright\arraybackslash\scriptsize}p{1.0cm}   % Type
+        >{\raggedright\arraybackslash\tiny}p{3.0cm}         % Answers (JSON)
+    }
+        \toprule
+        \textbf{Pass ID} & \textbf{Title} & \textbf{Context (Truncated)} & \textbf{Q. ID} & \textbf{Question} & \textbf{Ans?} & \textbf{Type} & \textbf{Answers} \\
+        \midrule
+        
+        % --- Row 1 ---
+        bn\_wiki\_ 0981 
+        & \bn{ইন্টেল কর্পোরেশন} \newline \textit{Intel Corporation}
+        & \bn{২০০০ সালের পর, প্রসেসরের চাহিদা হ্রাস পায়। প্রতিযোগিরা, বিশেষ করে এএমডি শেয়ার বাজারের বড় অংশ অধিগ্রহণ করে। [...]} \newline \textit{After 2000, demand for processors declined; competitors, especially AMD, captured a large market share. [...]} 
+        & bn\_wiki\_ 0981\_01 
+        & \bn{কত সালের পর, প্রসেসরের চাহিদা হ্রাস পায়?} \newline \textit{After which year did processor demand decline?}
+        & 1 
+        & factoid 
+        & \ttfamily \{ "text": ["\bn{২০০০}" / 2000], "type": ["single span"] \} \\
+        \midrule
+        
+        % --- Row 2 ---
+        bn\_wiki\_ 0656 
+        & \bn{উবুন্টু (লিনাক্স)} \newline \textit{Ubuntu (Linux)}
+        & \bn{উবুন্টু ইনস্টল করার জন্য সাধারণভাবে লাইভ সিডি ব্যবহার করা হয়। উবুন্টু অপারেটিং সিস্টেমটি ইনস্টল করা ছাড়াই সরাসরি সিডি থেকে ব্যবহার করা যায়। [...]} \newline \textit{A live CD is commonly used to install Ubuntu; the operating system can be used directly from the CD without installation. [...]} 
+        & bn\_wiki\_ 0656\_02 
+        & \bn{কি নামে উবুন্টু ওএস ইনস্টল করতে সফটওয়্যার ব্যবহার করা হয়?} \newline \textit{What software is used to install Ubuntu OS?}
+        & 0 
+        & factoid 
+        & \ttfamily \{ "text": ["", ""], "type": ["", ""] \} \\
+
+        \bottomrule
+    \end{tabularx}
+\end{table*}
+
+\subsection{Fine-tuning Strategy}
+We employed a Siamese network structure with shared weights. The training objective was a summation of Multiple Negatives Ranking Loss (MNRL) calculated across varying dimensions, facilitated by Matryoshka Representation Learning.
+
+MNRL treats the corresponding context for a question as the positive sample and all other contexts in the batch as negatives. The Matryoshka Loss wraps this objective, calculating the loss at dimensions $\{d_{max}, \dots, 64\}$. This forces the model to encode the most salient semantic information into the first 64 dimensions.
+
+\section{Quantitative Evaluation}
+
+We evaluated the models on the BanglaRQA test set using standard Information Retrieval metrics. Below we define the key metrics used in our analysis: Accuracy@k, Mean Reciprocal Rank (MRR), Mean Average Precision (MAP), and Normalized Discounted Cumulative Gain (NDCG). Let $Q$ be the set of all queries in the test set.
+
+Because two retrieval pools are used for different analytical purposes, Table~\ref{tab:evaluation_regimes} explicitly separates the evaluation regimes. The primary model comparison and all statistical tests use Regime A. The higher NDCG@10 value reported in the efficiency analysis is from Regime B and is therefore not used as the basis for the Wilcoxon significance tests.
+
+\begin{table*}[t]
+    \centering
+    \caption{Evaluation Regimes Used in This Study}
+    \label{tab:evaluation_regimes}
+    \small
+    \begin{tabularx}{\textwidth}{p{1.7cm}p{2.6cm}p{2.2cm}p{2.4cm}X}
+        \toprule
+        \textbf{Regime} & \textbf{Purpose} & \textbf{Queries} & \textbf{Retrieval Pool} & \textbf{Relevance Definition} \\
+        \midrule
+        A & Primary dense-retrieval model comparison and significance testing & 1,124 answerable BanglaRQA test questions & Train + validation + test answerable passages as constructed by the IR evaluator & Any passage with the same BanglaRQA passage identifier as the query's gold context is relevant \\
+        B & Storage-efficiency and deployment trade-off analysis & Same answerable question set used in the efficiency run & 1,124-document corpus used for vector-index size analysis & The gold passage associated with each query is treated as relevant for NDCG@10 \\
+        C & Downstream RAGAS sanity check & 10 Bengali factual queries & FAISS index over Bengali Wikipedia-style chunks, top-k=3 & RAGAS context and answer metrics computed against manually specified reference answers \\
+        \bottomrule
+    \end{tabularx}
+\end{table*}
+
+\begin{itemize}
+    \item \textbf{Accuracy@k:} This metric measures the proportion of queries for which at least one correct document is found within the top $k$ retrieved results. It is a simple measure of success within a fixed retrieval window.
+    
+    \item \textbf{Mean Reciprocal Rank (MRR):} MRR evaluates how quickly the system finds the first relevant document. For each query, the reciprocal rank is the inverse of the rank of the first correct answer ($1/\text{rank}_i$). If no correct document is retrieved, the reciprocal rank is 0. The MRR is the average of these values across all queries.
+    \begin{equation}
+        \text{MRR} = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \frac{1}{\text{rank}_i}
+    \end{equation}
+    
+    \item \textbf{Mean Average Precision (MAP):} MAP provides a single-figure measure of quality across recall levels. For a single query $q$, Average Precision (AP) is the average of precision values calculated at each point a relevant document is found in the ranked list. MAP is the mean of these AP scores over all queries.
+    \begin{equation}
+        \text{AP}(q) = \frac{\sum_{k=1}^{n} (P(k) \times \text{rel}(k))}{\text{number of relevant documents for } q}
+    \end{equation}
+    \begin{equation}
+        \text{MAP} = \frac{1}{|Q|} \sum_{q \in Q} \text{AP}(q)
+    \end{equation}
+    where $n$ is the number of retrieved documents, $P(k)$ is the precision at cutoff $k$, and $\text{rel}(k)$ is an indicator function that is 1 if the item at rank $k$ is relevant, and 0 otherwise.
+
+    \item \textbf{Normalized Discounted Cumulative Gain (NDCG):} NDCG evaluates the quality of a ranking by considering the graded relevance of documents and penalizing relevant documents that appear lower in the list. It is calculated by dividing the Discounted Cumulative Gain (DCG) by the Ideal DCG (IDCG), which represents the gain of a perfect ranking. This normalization ensures the score is between 0 and 1.
+    \begin{equation}
+        \text{DCG}_k = \sum_{i=1}^{k} \frac{\text{rel}_i}{\log_2(i+1)}
+    \end{equation}
+    \begin{equation}
+        \text{NDCG}_k = \frac{\text{DCG}_k}{\text{IDCG}_k}
+    \end{equation}
+    where $\text{rel}_i$ is the relevance score of the document at position $i$ (in our case, 1 for relevant, 0 for not).
+\end{itemize}
+
+\subsection{Performance Comparison}
+The dense-retrieval results of our experiments are visualized in Figure \ref{fig:bar_comparison}. The \texttt{mpnet-base} model (green bars) emerged as the clear dense-model leader across all four metrics. Even at lower dimensions, it consistently outperformed the monolingual \texttt{shihab17} (blue) and distilled \texttt{distiluse} (red) models.
+
+Table \ref{tab:comprehensive_comparison} details the specific improvements and includes a BM25 lexical baseline requested during review. The \texttt{distiluse} model, while efficient, started with a negligible baseline performance (NDCG@10 of 0.0037). Fine-tuning resurrected this model, bringing it to a respectable NDCG@10 of 0.4213. The monolingual \texttt{shihab17} model showed strong gains, improving to 0.5638. Among dense models, \texttt{mpnet} achieved the highest scores, with an NDCG@10 of 0.6139 and an Accuracy@10 of 69.13\%. BM25 reached an NDCG@10 of 0.9142, showing that lexical matching is particularly strong for BanglaRQA's factoid Wikipedia questions and motivating hybrid dense--lexical retrieval as future work.
+
+\begin{figure*}[ht!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{dense_performance_v2.png}
+    \caption{Fine-tuned dense-retrieval performance across embedding dimensions. Each subplot uses embedding dimension as the X-axis and retrieval score as the Y-axis. The MPNet model demonstrates superior performance across NDCG@10, MRR@10, MAP@100, and Accuracy@1, maintaining its lead even as embedding dimensions are reduced.}
+    \label{fig:bar_comparison}
+    \Description{A bar chart comparing three models: shihab17, distiluse, and mpnet across four metrics. Green bars (mpnet) are consistently higher than blue (shihab17) and red (distiluse) bars.}
+\end{figure*}
+
+
+
+\begin{figure*}[htbp]
+    \centering
+    % Adjust width=1.0\textwidth if you want it to span two columns, 
+    % or width=1.0\linewidth for a single column.
+    \includegraphics[width=1.0\textwidth]{base_vs_finetuned_v2.png}
+    \caption{\textbf{Impact of fine-tuning on semantic search performance across varying dimensions (64d--768d).} 
+    Each subplot uses embedding dimension as the X-axis and retrieval score as the Y-axis. The comparison highlights the efficacy gap between base and fine-tuned models. 
+    The top row displays Ranking Quality (\textbf{NDCG@10}), while the bottom row displays Retrieval Coverage (\textbf{Recall@10}). 
+    Fine-tuned models demonstrate superior performance and robustness to dimensionality reduction compared to pre-trained base models.}
+    \label{fig:model_comparison}
+\end{figure*}
+
+
+To rigorously evaluate the efficacy of our fine-tuning approach, we conducted a comparative analysis against the pre-trained base models across varying vector dimensions ranging from $64d$ to $768d$. As illustrated in Fig.~\ref{fig:model_comparison}, the fine-tuned models (indicated by the red squares) consistently outperform their base counterparts (blue circles) by a significant margin across all three architectures.
+
+In terms of ranking quality (NDCG@10), the MPNet and Shihab17 (BanglaBERT) models show substantial gains. For instance, the fine-tuned MPNet achieves an NDCG@10 score of $0.6139$ at 768 dimensions, compared to $0.2695$ for the base model—an improvement of approximately $127\%$. 
+
+Most notably, the DistilUSE base model exhibited near-zero performance ($<0.01$ across all metrics), indicating a lack of semantic alignment for the target language in its pre-trained state. However, post-fine-tuning, the model recovered to a competitive NDCG@10 of $0.4213$, demonstrating that our training methodology successfully aligned the multilingual vector space.
+
+Furthermore, Fig.~\ref{fig:model_comparison} demonstrates the robustness of the fine-tuned models to dimensionality reduction. While performance naturally degrades as dimensions are reduced towards $64d$, the fine-tuned models maintain high utility. Specifically, the fine-tuned Shihab17 model at $64d$ retains an NDCG score of $0.4783$, which surpasses the performance of the full $768d$ base MPNet model. This suggests that our fine-tuned models are highly effective for resource-constrained environments where low-dimensional embeddings are required for storage efficiency.
+
+
+\begin{table*}[!htbp]
+    \centering
+    \caption{Comparative performance of fine-tuned (FT) dense models, dense base models, and a BM25 lexical baseline at maximum dimensions. The best dense scores are marked with $\dagger$, indicating that MPNet-FT is statistically significantly better than the second-best dense model (Shihab17-FT) with $p < 0.001$. BM25 is reported as a non-neural lexical baseline and therefore has no Base/FT split.}
+    \label{tab:comprehensive_comparison}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llcccccccccccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Dim}} & \multicolumn{2}{c}{\textbf{NDCG@10}} & \multicolumn{2}{c}{\textbf{MRR@10}} & \multicolumn{2}{c}{\textbf{MAP@100}} & \multicolumn{2}{c}{\textbf{Accuracy@10}} & \multicolumn{2}{c}{\textbf{Precision@10}} & \multicolumn{2}{c}{\textbf{Recall@10}} \\
+        \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12} \cmidrule(lr){13-14}
+         & & Base & FT & Base & FT & Base & FT & Base & FT & Base & FT & Base & FT \\
+        \midrule
+        DistilUSE & 512d & 0.0037 & 0.4213 & 0.0036 & 0.3955 & 0.0056 & 0.4248 & 0.0044 & 0.4698 & 0.0014 & 0.1770 & 0.0040 & 0.4592 \\
+        Shihab17 & 768d & 0.1599 & 0.5638 & 0.1411 & 0.5179 & 0.1651 & 0.5586 & 0.1993 & 0.6557 & 0.0715 & 0.2424 & 0.1889 & 0.6323 \\
+        MPNet & 768d & 0.2695 & \textbf{0.6139}$^\dagger$ & 0.2413 & \textbf{0.5712}$^\dagger$ & 0.2761 & \textbf{0.6094}$^\dagger$ & 0.3283 & \textbf{0.6913}$^\dagger$ & 0.1201 & \textbf{0.2593}$^\dagger$ & 0.3120 & \textbf{0.6762}$^\dagger$ \\
+        BM25 & -- & \multicolumn{2}{c}{\textbf{0.9142}} & \multicolumn{2}{c}{\textbf{0.8910}} & \multicolumn{2}{c}{\textbf{0.9053}} & \multicolumn{2}{c}{\textbf{0.9537}} & \multicolumn{2}{c}{\textbf{0.3631}} & \multicolumn{2}{c}{\textbf{0.9476}} \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table*}
+
+
+Table \ref{tab:comprehensive_comparison} presents a detailed breakdown of the results at the maximum embedding dimensions available for each dense architecture. Across all dense metrics, fine-tuning delivered clear performance gains.
+
+Most strikingly, the DistilUSE model moved from an almost unusable baseline (NDCG of 0.0037) to a strong post--fine-tuning score of 0.4213. MPNet reached the best dense performance, with an Accuracy@10 of 0.6913---meaning the correct item appeared in the top ten nearly 70\% of the time, up from 32\% in the base version. The Shihab17 model also saw a three-fold jump in Recall@10, rising from 0.1889 to 0.6323. The BM25 result, however, indicates that lexical retrieval remains a very competitive baseline on this dataset because many answerable questions share named entities and surface terms with Wikipedia passages.
+
+
+
+
+\subsection{Statistical Significance Analysis}
+
+To ascertain that the performance superiority of the \texttt{mpnet} architecture is not merely an artifact of specific query variations or random initialization, we conducted a statistical significance test on the test set predictions. Given that information retrieval metrics such as NDCG are typically non-normally distributed, we employed the \textbf{Wilcoxon Signed-Rank Test}, a non-parametric paired difference test.
+
+We formulated the null hypothesis ($H_0$) that there is no significant difference in the median retrieval performance between the best-performing dense model (\texttt{mpnet-ft}) and the runner-up dense models. We compared the per-query NDCG@10 scores across the $1,124$ answerable test queries.
+
+The results, summarized in Table~\ref{tab:significance}, strongly reject the null hypothesis. The fine-tuned \texttt{mpnet} model demonstrates a statistically significant improvement over the monolingual \texttt{shihab17} model ($p < 0.001$) and the distilled \texttt{distiluse} model ($p < 0.001$). The extremely low p-values (e.g., $1.0 \times 10^{-47}$ against DistilUSE) confirm that \texttt{mpnet}'s architectural advantages translate into robust, consistent gains across the vast majority of the test distribution.
+
+\begin{table}[h]
+    \centering
+    \caption{Wilcoxon Signed-Rank Test Results (NDCG@10)}
+    \label{tab:significance}
+    \begin{tabular}{llcc}
+        \toprule
+        \textbf{Model A} & \textbf{Model B} & \textbf{Statistic} & \textbf{p-value} \\
+        \midrule
+        MPNet-FT & Shihab17-FT & $8.02 \times 10^3$ & $7.81 \times 10^{-6}$ \\
+        MPNet-FT & DistilUSE-FT & $8.30 \times 10^3$ & $1.00 \times 10^{-47}$ \\
+        Shihab17-FT & DistilUSE-FT & $1.12 \times 10^4$ & $5.35 \times 10^{-38}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsection{Matryoshka Efficiency and Saturation}
+A critical analysis of the results at lower dimensions highlights the success of the Matryoshka training strategy. As illustrated in the saturation curves in Figure \ref{fig:saturation}, all models exhibit a logarithmic growth in performance as dimensions increase, eventually reaching a plateau. The \texttt{mpnet} model (green line) consistently dominates across all dimensions. Notably, the "elbow" of the curve appears early; moving from 256 to 768 dimensions yields diminishing returns. Figure \ref{fig:dim_effect} further illustrates this saturation effect from a classification metric perspective, showing that individual scores for accuracy, f1, precision, and recall follow a similar logarithmic growth pattern, with most gains realized by the 512-dimension mark.
+
+\begin{figure*}[ht!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{paper_plot_saturation_lines.png}
+    \caption{Performance saturation across dimensions for different metrics. The MPNet model demonstrates superior scaling, reaching near-peak performance earlier than the monolingual or distilled baselines.}
+    \label{fig:saturation}
+    \Description{Line graphs showing performance metrics vs. embedding dimensions. The X-axis represents dimensions (64 to 768), and the Y-axis represents the score. The green line for MPNet is above the others and flattens out after 256 dimensions.}
+\end{figure*}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{embed_dim_vs_metrics.png}
+    \caption{Effect of Embedding Dimension on Evaluation Metrics for the fine-tuned MPNet model. Performance across key metrics begins to plateau after 256-512 dimensions, reinforcing the effectiveness of Matryoshka Representation Learning.}
+    \label{fig:dim_effect}
+    \Description{A line chart with Embedding Dimension on the x-axis (from 128 to 768) and Score on the y-axis. Four colored lines with markers represent accuracy, f1, precision, and recall. All lines show a steep rise from 128 to 512 dimensions, after which they flatten, indicating diminishing returns for higher dimensions.}
+\end{figure}
+
+To quantify this efficiency, we analyzed the performance retention relative to the best-performing MPNet configuration (Figure \ref{fig:retention}). The results are striking: MPNet achieves over 95\% of its maximum capacity at just 128 dimensions. This implies that for large-scale Bengali retrieval systems, one can achieve state-of-the-art accuracy with a fraction of the storage usually necessary.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{paper_plot_retention.png}
+    \caption{Performance Retention Analysis (NDCG@10). Bars indicate the percentage of performance retained relative to the full-precision MPNet model. The dashed line indicates the 95\% efficiency threshold.}
+    \label{fig:retention}
+    \Description{A bar chart showing retention percentages. A horizontal dashed line marks the 95\% threshold. MPNet bars cross this threshold at low dimensions.}
+\end{figure}
+
+\subsection{Generalization on MTEB Benchmarks}
+To assess the generalization capabilities of our fine-tuned models beyond the primary question-answering task, we evaluated them on a selection of Bengali tasks from the Massive Text Embedding Benchmark (MTEB). The selected tasks included `BengaliDocumentClassification.v2` (BDC), `BengaliHateSpeechClassification.v2` (BHSC), and the `Tatoeba` bitext retrieval task. This evaluation measures how well the semantic space learned on BanglaRQA transfers to broader classification and retrieval contexts.
+
+The results, depicted in Figure \ref{fig:mteb_breakdown}, reinforce the superiority of the fine-tuned MPNet architecture. The model-wise breakdown clearly shows that MPNet consistently achieves the highest scores across all three datasets and nearly all evaluation metrics. While the monolingual `shihab17` model shows competitive performance, particularly on the classification tasks (BDC, BHSC), it does not reach the overall proficiency of MPNet. The `distiluse` model lags significantly behind both. This broader evaluation confirms that the architectural advantages of MPNet, enhanced by our fine-tuning strategy, translate into robust, general-purpose semantic representations for the Bengali language.
+
+\begin{figure*}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{model_performance.png}
+    \caption{Comparative performance on MTEB benchmark tasks, broken down by model. Each subplot shows a model's performance on Bengali Document Classification (BDC), Bengali Hate Speech Classification (BHSC), and Tatoeba retrieval. The MPNet model demonstrates consistently superior scores across all tasks and metrics.}
+    \label{fig:mteb_breakdown}
+    \Description{A multi-panel bar chart with three subplots side-by-side, one for each model: MPNet, distiluse, and Shihab17. Each subplot's x-axis lists the tasks (BDC, BHSC, Tatoeba) and the y-axis shows the score from 0.0 to 0.8. Within each task, five colored bars represent the metrics: accuracy, f1, precision, recall, and main_score. The bars in the MPNet subplot on the left are visibly higher than the corresponding bars in the distiluse and Shihab17 subplots, indicating superior performance.}
+\end{figure*}
+
+
+\section{Downstream RAG Analysis}
+
+To understand the downstream impact of retrieval quality, we integrated the fine-tuned models into a fixed RAG pipeline and evaluated the outputs with RAGAS. The generator was \texttt{gpt-3.5-turbo} with temperature 0. The retriever used a FAISS vector index over Bengali Wikipedia-style text chunks, with chunk size 500 characters, overlap 50 characters, cosine-normalized sentence-transformer embeddings, and top-$k=3$ retrieved chunks per query. The prompt instructed the generator in Bengali to answer only from the provided context and to say that it did not know if the answer was absent. We evaluated 10 Bengali factual queries with manually specified reference answers and report mean scores with approximate 95\% confidence intervals in Table~\ref{tab:ragas_aggregate}. This RAGAS evaluation is intended as a downstream sanity check rather than a replacement for the primary 1,124-query retrieval evaluation.
+
+\begin{table*}[t]
+    \centering
+    \caption{Aggregate RAGAS Results on 10 Bengali Factual Queries. Values are mean $\pm$ approximate 95\% confidence interval.}
+    \label{tab:ragas_aggregate}
+    \small
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Retriever} & \textbf{Context Precision} & \textbf{Context Recall} & \textbf{Faithfulness} & \textbf{Answer Relevancy} \\
+        \midrule
+        MPNet-FT & \textbf{0.750 $\pm$ 0.263} & \textbf{0.900 $\pm$ 0.196} & \textbf{0.700 $\pm$ 0.299} & \textbf{0.421 $\pm$ 0.276} \\
+        Shihab17-FT & 0.650 $\pm$ 0.294 & 0.800 $\pm$ 0.261 & 0.600 $\pm$ 0.320 & 0.249 $\pm$ 0.250 \\
+        DistilUSE-FT & 0.450 $\pm$ 0.308 & 0.600 $\pm$ 0.320 & 0.500 $\pm$ 0.327 & 0.264 $\pm$ 0.264 \\
+        \bottomrule
+    \end{tabular}
+\end{table*}
+
+
+\begin{table*}[t]
+    \centering
+    \caption{Bilingual Examples from the RAG Evaluation}
+    \label{tab:bengali_rag_examples}
+    \small
+    \begin{tabularx}{\textwidth}{p{3.2cm}p{1.8cm}X X p{1.2cm}}
+        \toprule
+        \textbf{Query} & \textbf{Model} & \textbf{Top Retrieved Evidence} & \textbf{Generated Response} & \textbf{Result} \\
+        \midrule
+        \bn{বিশ্বের প্রথম কম্পিউটার কে তৈরি করেন ?} \newline \textit{Who created the first computer?}
+        & MPNet-FT
+        & Contains \bn{চার্লস ব্যাবেজ} (\textit{Charles Babbage}) and describes his 1837 analytical engine.
+        & \bn{বিশ্বের প্রথম কম্পিউটার চার্লস ব্যাবেজ তৈরি করেন।} \newline \textit{Charles Babbage created the first computer.}
+        & Success \\
+        \midrule
+        \bn{বিশ্বের প্রথম কম্পিউটার কে তৈরি করেন ?} \newline \textit{Who created the first computer?}
+        & DistilUSE-FT
+        & Retrieves generic computer-classification and unrelated cinema/software passages; the answer entity is absent.
+        & \bn{আমি জানি না।} \newline \textit{I do not know.}
+        & Failure \\
+        \midrule
+        \bn{ঔপন্যাসিক ও গল্পকার জহির রায়হান পরিচালিত প্রথম চলচ্চিত্রের নাম কী ?} \newline \textit{What was the first film directed by Zahir Raihan?}
+        & MPNet-FT
+        & Contains \bn{১৯৬১ সালে ... কখনো আসেনি} (\textit{in 1961 ... Kokhono Asheni}) in the retrieved context.
+        & \bn{জহির রায়হান পরিচালিত প্রথম চলচ্চিত্রের নাম "কখনো আসেনি"।} \newline \textit{The first film directed by Zahir Raihan was ``Kokhono Asheni.''}
+        & Success \\
+        \midrule
+        \bn{ভারতের ছত্তীসগঢ় রাজ্যের রাজধানী কোথায় ?} \newline \textit{Where is the capital of Chhattisgarh?}
+        & MPNet-FT
+        & Contains \bn{রায়পুর এই রাজ্যের রাজধানী} (\textit{Raipur is this state's capital}).
+        & \bn{রায়পুর।} \newline \textit{Raipur.}
+        & Success \\
+        \bottomrule
+    \end{tabularx}
+\end{table*}
+
+\begin{figure*}[ht!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{ragas_aggregate_heatmap.png}
+    \caption{Aggregate RAGAS scores by retriever model. The X-axis lists the RAGAS metric, the Y-axis lists the retriever model, and cell color encodes the mean score. MPNet-FT produces the strongest context precision, context recall, faithfulness, and answer relevancy in this small downstream evaluation.}
+    \label{fig:radar}
+    \Description{A heatmap with retriever models as rows and RAGAS metrics as columns. MPNet-FT has the highest values across all columns, followed by Shihab17-FT and DistilUSE-FT.}
+\end{figure*}
+
+
+
+\subsection{Operational Efficiency and Storage Costs}
+
+For real-world deployment, specifically in Retrieval-Augmented Generation (RAG) systems where vector database costs scale linearly with dimensionality, the trade-off between storage footprint and retrieval accuracy is paramount. We analyzed this trade-off by comparing the physical storage requirements against NDCG@10 scores across varying dimensions on our test corpus of 1,124 documents.
+
+Figure~\ref{fig:efficiency} illustrates the Pareto frontier of efficiency. The fine-tuned \texttt{mpnet} model demonstrates remarkable resilience to quantization. As detailed in Table~\ref{tab:efficiency}, reducing the dimensionality from $768d$ to $128d$ results in an $83.3\%$ reduction in memory usage (dropping from 3.29 MB to 0.55 MB). Despite this massive compression, the model retains $96.1\%$ of its peak performance ($0.7796$ vs $0.8114$ NDCG).
+
+Crucially, even at the extreme compression of $64d$, the fine-tuned MPNet achieves an NDCG of $0.7438$, which is significantly higher than the full-precision ($768d$) performance of the original pre-trained base model ($0.4715$). This confirms that our Matryoshka fine-tuning strategy not only aligns the vector space for Bengali but does so in a way that concentrates semantic information into the earlier dimensions, identifying $128d$ as the ideal configuration for resource-constrained production environments.
+
+
+\begin{figure}[htbp]
+    \centering
+    % Ensure the filename matches what you saved in Colab
+    \includegraphics[width=0.95\linewidth]{efficiency-tradeoff.png}
+    \caption{\textbf{The Efficiency-Accuracy Trade-off.} The X-axis represents the memory footprint (MB) required to index the test corpus ($N=1124$), while the Y-axis shows retrieval performance (NDCG@10). The fine-tuned \texttt{mpnet-ft} model (blue line) exhibits a superior performance curve. The annotation highlights the operational ``sweet spot'' at 128 dimensions, offering high accuracy with an $83\%$ reduction in storage costs compared to the 768d baseline.}
+    \label{fig:efficiency}
+\end{figure}
+
+
+\begin{table}[h]
+    \centering
+    \caption{Storage vs. Performance Analysis. Comparison of the Base model against the Fine-Tuned (FT) MPNet model across compression levels. At 128d, the model retains 96\% of its performance while reducing storage by $83\%$.}
+    \label{tab:efficiency}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Model Config.} & \textbf{Dim.} & \textbf{Size (MB)} & \textbf{NDCG@10} & \textbf{Retention} \\
+        \midrule
+        MPNet-Base & 768d & 3.29 MB & 0.4715 & - \\
+        \textbf{MPNet-FT} & \textbf{768d} & 3.29 MB & \textbf{0.8114} & \textbf{100.0\%} \\
+        \midrule
+        \textit{Compression Analysis} & & & & \\
+        MPNet-FT & 512d & 2.20 MB & 0.8072 & 99.5\% \\
+        MPNet-FT & 256d & 1.10 MB & 0.7918 & 97.6\% \\
+        \textbf{MPNet-FT} & \textbf{128d} & \textbf{0.55 MB} & \textbf{0.7796} & \textbf{96.1\%} \\
+        MPNet-FT & 64d & 0.27 MB & 0.7438 & 91.7\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Response Accuracy and Hallucination}
+The analysis reveals that MPNet's superior retrieval metrics translate directly to better generation. As shown in Figure \ref{fig:radar}, the MPNet profile (green) encompasses the others even at 64 dimensions.
+
+Consider the query: \textit{"Who was the director of the world's first film?"}
+\begin{itemize}
+    \item The \texttt{shihab17} and \texttt{distiluse} models failed to retrieve the correct paragraph regarding the Lumière brothers. Consequently, the generation component hallucinated.
+    \item The \texttt{mpnet} model correctly identified that the information was missing and responded with "I don't know," resulting in a high Faithfulness score.
+\end{itemize}
+
+Figure \ref{fig:heatmap} further correlates model confidence with retrieval success, indicating that \texttt{mpnet} embeddings are more semantically precise, effectively distinguishing between topical relevance and factual answers.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{heatmap.png}
+    \caption{Heatmap illustrating the correlation between retrieval confidence and generation accuracy across different query types.}
+    \label{fig:heatmap}
+    \Description{A heatmap where colors represent correlation strength. One axis lists query types, the other lists confidence/accuracy metrics. High correlation is visible for MPNet.}
+\end{figure}
+
+
+\subsection{Error Analysis and Model Limitations}
+
+While the quantitative metrics highlight \texttt{mpnet-ft} as the superior model, a granular analysis of failure cases reveals distinct behavioral patterns intrinsic to each architecture. We categorized 100 error samples from the test set into three primary failure modes: \textit{Lexical Overlap Bias}, \textit{Entity Hallucination}, and \textit{Tokenization Granularity}.
+
+\textbf{Lexical Overlap Bias:} The distilled model (\texttt{distiluse}) frequently succumbed to lexical overlap bias, retrieving contexts that shared high keyword frequency with the query but lacked semantic alignment. For example, for the query \textit{"What is the currency of Bangladesh?"}, \texttt{distiluse} retrieved passages discussing "Bangladesh's economic growth" rather than the specific currency entity. In contrast, \texttt{mpnet}, with its deeper interaction layers, successfully mapped the query to contexts containing the specific answer "Taka", even when the word overlap was lower.
+
+\textbf{Tokenization and Monolingual Advantage:} Although \texttt{mpnet} dominated overall, the monolingual \texttt{shihab17} model exhibited superior performance on queries involving rare Bengali idioms or complex agglutinative morphology.
+Table~\ref{tab:error_analysis} illustrates a specific case where \texttt{mpnet} failed. The compound word \bn{‘মুক্তিযুদ্ধভিত্তিক’} (Liberation War-based) was split into four sub-tokens by the multilingual tokenizer of MPNet, diluting its semantic representation. The monolingual tokenizer of \texttt{shihab17} treated it as a more cohesive unit, allowing it to retrieve the correct literary context.
+
+\textbf{False Negatives in High Compression:} At extreme compression (64d), \texttt{mpnet} occasionally failed to distinguish between negation and affirmation. In queries asking \textit{"Which feature is NOT present in..."}, the 64-dimensional vector lost the specific dimension encoding the negation, retrieving positive instances instead. This suggests that while Matryoshka learning is efficient, syntactic nuances like negation require higher dimensional bandwidth (minimum 128d).
+
+\begin{table}[h]
+    \caption{Error Analysis: Instance where Monolingual Model outperforms MPNet due to Tokenization}
+    \label{tab:error_analysis}
+    \small
+    \begin{tabularx}{\linewidth}{p{1.5cm}X}
+        \toprule
+        \textbf{Query} & \bn{মুক্তিযুদ্ধভিত্তিক উপন্যাসের নাম কী?} \\
+        \textit{(Trans.)} & \textit{What is the name of the Liberation War-based novel?} \\
+        \midrule
+        \textbf{Correct Context} & ...\bn{আনোয়ার পাশা রচিত 'রাইফেল রোটি আওরাত' একটি উল্লেখযোগ্য মুক্তিযুদ্ধভিত্তিক উপন্যাস।...} \\
+        \midrule
+        \textbf{MPNet-FT} & \textbf{Failure:} Retrieved a passage about general Bengali literature history. \\
+        \textit{(Reason)} & Tokenizer fragmentation of \bn{‘মুক্তিযুদ্ধভিত্তিক’} resulted in loss of specific "war" context. \\
+        \midrule
+        \textbf{Shihab17-FT} & \textbf{Success:} Correctly retrieved the passage regarding 'Rifle Roti Aurat'. \\
+        \textit{(Reason)} & Optimized Bengali vocabulary retained the compound word semantics. \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+
+\section{Limitations}
+
+While our results are promising, this study has several limitations. First, our fine-tuning and evaluation are restricted to the \textit{BanglaRQA} dataset, which primarily consists of factoid questions from Wikipedia. The models' performance on conversational queries, abstract reasoning, or domain-specific texts (e.g., medical or legal Bengali) remains untested. 
+
+Second, while we demonstrate the efficiency of Matryoshka Representation Learning, we did not perform an ablation study to quantify the specific contribution of the MRL objective versus the Multiple Negatives Ranking Loss alone. 
+
+Finally, our error analysis indicates that while \texttt{mpnet} is superior, it still struggles with negation and complex morphological compounds at high compression rates (64d), suggesting that a minimum dimensionality of 128d is a hard constraint for semantic nuance.
+
+
+\section{Ethics Statement}
+
+This work utilizes the publicly available BanglaRQA dataset, derived from Wikipedia, which does not contain personally identifiable information (PII) or offensive content. Our models are intended to improve information access for Bengali speakers. However, we acknowledge that retrieval models can inadvertently surface biased or hallucinated content if the underlying knowledge base is flawed. All models and code will be released open-source to promote transparency. Regarding environmental impact, our experiments were conducted on a single GPU for less than one hour, resulting in a negligible carbon footprint compared to training Large Language Models from scratch.
+
+\section{Conclusion}
+
+This study provided a comparative evaluation of three distinct embedding architectures for Bengali semantic retrieval. Our results demonstrate that while specialized fine-tuning improves all dense models, the underlying architecture sets the dense-retrieval performance ceiling. The \texttt{mpnet-base} model, when fine-tuned using our proposed Matryoshka-MNRL strategy, outperforms both the monolingual and distilled dense models. The added BM25 baseline also shows that lexical retrieval remains very strong for factoid Wikipedia QA, motivating future hybrid dense-lexical retrieval rather than a purely dense replacement.
+
+We further demonstrated that high-dimensional embeddings are often unnecessary for effective retrieval in Bengali. Our saturation and retention analysis confirms that models can maintain over 95\% of their peak performance even when compressed to 128 dimensions. For practitioners building Bengali RAG applications, this suggests that the \texttt{mpnet} architecture, combined with dimensionality reduction, offers the optimal balance of accuracy and computational efficiency.
+
+%%
+%% The acknowledgments section is defined using the "acks" environment
+%% (and NOT an unnumbered section).
+\begin{acks}
+The authors acknowledge the open-source contributions of the model creators for \texttt{shihab17/bangla-sentence-transformer}, \texttt{sentence-transformers}, and the curators of the BanglaRQA dataset.
+\end{acks}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\begin{thebibliography}{99}
+
+    \bibitem{lewis2020retrieval}
+    P. Lewis, E. Perez, A. Piktus, et al. 2020. Retrieval-augmented generation for knowledge-intensive nlp tasks. In \emph{Advances in Neural Information Processing Systems} (NeurIPS).
+    
+    \bibitem{gao2023survey}
+    Y. Gao, Y. Li, S. Yang, et al. 2023. Retrieval-Augmented Generation for Large Language Models: A Survey. \emph{arXiv preprint arXiv:2312.10997}.
+
+    \bibitem{hu2024comprehensive}
+    Z. Hu, Y. Chen, L. Wang, et al. 2024. A Comprehensive Survey of Retrieval-Augmented Generation (RAG). \emph{arXiv preprint arXiv:2407.03126}.
+
+    \bibitem{lin2024improving}
+    B. Y. Lin, A. Drozd, P. Budzianowski, et al. 2024. Improving Retrieval-Augmented Generation for Low-Resource Languages. In \emph{2024 IEEE International Conference on Acoustics, Speech, and Signal Processing (ICASSP)}.
+
+    \bibitem{debanath2025advancing}
+    K. Debanath, S. Aich, and A. Y. Srizon. 2025. Advancing Low-Resource NLP: Contextual Question Answering for Bengali Language Using Llama. In \emph{2025 International Conference on Electrical, Computer and Communication Engineering (ECCE)}.
+    
+    \bibitem{yasunaga2022retrieval}
+    M. Yasunaga, J. Leskovec, P. Liang. 2022. Retrieval-Augmented Retrieval for Code Search and Completion. In \emph{Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}.
+
+    \bibitem{conneau2019unsupervised}
+    A. Conneau, K. Khandelwal, N. Goyal, et al. 2019. Unsupervised cross-lingual representation learning at scale. \emph{arXiv preprint arXiv:1911.02116}.
+    
+    \bibitem{ekram2022banglarqa}
+    S. M. S. Ekram, et al. 2022. BanglaRQA: A Benchmark Dataset for Under-resourced Bangla Language Reading Comprehension-based Question Answering. In \emph{Findings of the Association for Computational Linguistics: EMNLP 2022}.
+    
+    \bibitem{kusupati2022matryoshka}
+    A. Kusupati, G. Bhatt, A. Rege, et al. 2022. Matryoshka representation learning. In \emph{Advances in Neural Information Processing Systems} (NeurIPS).
+    
+    \bibitem{reimers2019sentence}
+    N. Reimers and I. Gurevych. 2019. Sentence-bert: Sentence embeddings using siamese bert-networks. In \emph{Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)}.
+
+    \bibitem{bhattacharjee2020banglabert}
+    A. Bhattacharjee, et al. 2021. BanglaBERT: A Trivalent Perspective for Judging Bengali Language Models. \emph{arXiv preprint arXiv:2104.09633}.
+
+    \bibitem{uddin2024bangla}
+    M. S. Uddin, M. A. Haque, R. H. Rifat, et al. 2024. Bangla SBERT - Sentence Embedding Using Multilingual Knowledge Distillation. In \emph{2024 IEEE 15th Annual Ubiquitous Computing, Electronics \& Mobile Communication Conference (UEMCON)}.
+
+    \bibitem{reimers2019sentencebert}
+    Reimers, Nils and Gurevych, Iryna. 2019. Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. In \emph{2019 Conference on Empirical Methods in Natural Language Processing}
+
+
+    \bibitem{kabir2024banglaembed}
+    M. R. Kabir, M. M. R. Nabil, and M. A. Khan. 2024. BanglaEmbed: Efficient Sentence Embedding Models for a Low-Resource Language Using Cross-Lingual Distillation Techniques. In \emph{2024 6th International Conference on Advanced Information and Communication Technology (ICAICT)}.
+    
+    \bibitem{song2020mpnet}
+    K. Song, X. Tan, T. Qin, J. Lu, and T.-Y. Liu. 2020. MPNet: Masked and Permuted Pre-training for Language Understanding. In \emph{Advances in Neural Information Processing Systems} (NeurIPS).
+    
+    \bibitem{yang2019multilingual}
+    Y. Yang, et al. 2019. Multilingual Universal Sentence Encoder for Semantic Retrieval. In \emph{Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics}.
+
+\end{thebibliography}
+
+\appendix
+
+\section{Reproducibility Details}
+
+To ensure the reproducibility of our results, we detail the hyperparameters and training infrastructure used in this study. All experiments were conducted using the \texttt{sentence-transformers} library (v3.0+) and the PyTorch framework.
+
+\subsection{Computational Infrastructure}
+Models were fine-tuned on a single NVIDIA T4 (16GB) GPU. The training duration for the \texttt{mpnet} model was approximately 45 minutes for 4 epochs.
+
+\subsection{Hyperparameters}
+We utilized a unified hyperparameter configuration across all three models to isolate architectural differences. We employed the \texttt{MatryoshkaLoss} wrapper over the \texttt{MultipleNegativesRankingLoss} (MNRL). The specific configuration is detailed in Table~\ref{tab:hyperparameters}.
+
+\begin{table}[h]
+    \caption{Hyperparameters for Fine-Tuning}
+    \label{tab:hyperparameters}
+    \centering
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Hyperparameter} & \textbf{Value} \\
+        \midrule
+        Batch Size (Per Device) & 32 \\
+        Gradient Accumulation Steps & 4 \\
+        Effective Batch Size & 128 \\
+        Number of Epochs & 4 \\
+        Learning Rate & $2 \times 10^{-5}$ \\
+        Scheduler & Cosine Decay \\
+        Warmup Ratio & 0.1 (10\%) \\
+        Optimizer & AdamW (Fused) \\
+        Max Sequence Length & 512 Tokens \\
+        Matryoshka Dimensions & $\{768, 512, 256, 128, 64\}$ \\
+        FP16 / BF16 & Disabled (FP32) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Data Splitting}
+The BanglaRQA dataset was processed as follows:
+\begin{itemize}
+    \item \textbf{Training Set:} Combined original Train and Validation splits, filtered for \texttt{is\_answerable=1}. Total pairs: 10,134.
+    \item \textbf{Test Set:} Original Test split, filtered for \texttt{is\_answerable=1}. Total pairs: 1,124.
+\end{itemize}
+
+\end{document}

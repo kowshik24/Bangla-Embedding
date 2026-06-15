@@ -1,0 +1,5 @@
+{
+  "MPNet": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+  "Shihab17": "shihab17/bangla-sentence-transformer",
+  "DistilUSE": "sentence-transformers/distiluse-base-multilingual-cased-v1"
+}

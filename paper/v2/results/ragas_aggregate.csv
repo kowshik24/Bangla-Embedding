@@ -1,0 +1,4 @@
+model,n,context_precision_mean,context_precision_ci95,context_recall_mean,context_recall_ci95,faithfulness_mean,faithfulness_ci95,answer_relevancy_mean,answer_relevancy_ci95
+distiluse-ft,10,0.4500,0.3082,0.6000,0.3201,0.5000,0.3267,0.2641,0.2637
+mpnet-base-ft,10,0.7500,0.2634,0.9000,0.1960,0.7000,0.2994,0.4206,0.2759
+shihab17-ft,10,0.6500,0.2940,0.8000,0.2613,0.6000,0.3201,0.2490,0.2499
