@@ -1,0 +1,2 @@
+Model,Pool,Queries,Corpus,accuracy@1,accuracy@10,accuracy@100,accuracy@3,accuracy@5,map@100,mrr@10,ndcg@10,precision@1,precision@10,precision@100,precision@3,precision@5,recall@1,recall@10,recall@100,recall@3,recall@5
+BM25,train+validation+test,1124,11258,0.876335,0.953737,0.983096,0.876335,0.935053,0.905339,0.890980,0.914190,0.876335,0.363078,0.037625,0.873369,0.683630,0.234342,0.947553,0.982429,0.697687,0.894247
