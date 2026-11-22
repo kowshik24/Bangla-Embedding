@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Optimizing Semantic Retrieval for Bengali | Matryoshka Embeddings</title>
+  <meta name="description" content="A comparative analysis of monolingual and multilingual sentence embeddings for Bengali semantic retrieval, fine-tuned with Matryoshka Representation Learning. Accepted at ACM TALLIP.">
+  <meta name="keywords" content="Bengali, Bangla, Sentence Embeddings, Matryoshka Representation Learning, Information Retrieval, RAG, BanglaRQA">
+  <meta property="og:title" content="Optimizing Semantic Retrieval for Bengali">
+  <meta property="og:description" content="Monolingual vs. multilingual embeddings with Matryoshka Representation Learning for Bengali retrieval. ACM TALLIP.">
+  <meta property="og:image" content="static/images/architecture.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>অ</text></svg>">
+  <style>
+    :root {
+      --fg: #1f2328;
+      --muted: #57606a;
+      --accent: #0b6e4f;
+      --accent-soft: #e6f4ee;
+      --border: #d0d7de;
+      --bg-alt: #f6f8fa;
+      --max: 980px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Noto Sans Bengali", Helvetica, Arial, sans-serif;
+      color: var(--fg);
+      line-height: 1.65;
+      background: #fff;
+    }
+    a { color: var(--accent); }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+    header.hero { text-align: center; padding: 64px 0 32px; }
+    .venue {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 4px 14px;
+      margin-bottom: 18px;
+    }
+    h1.title {
+      font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+      line-height: 1.25;
+      margin: 0 auto 20px;
+      max-width: 900px;
+      font-weight: 700;
+    }
+    .authors { font-size: 1.15rem; margin: 0 0 4px; }
+    .authors a { text-decoration: none; }
+    .authors a:hover { text-decoration: underline; }
+    .affil { color: var(--muted); margin: 0 0 24px; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #24292f; color: #fff; text-decoration: none;
+      padding: 9px 18px; border-radius: 999px; font-weight: 500; font-size: 0.95rem;
+    }
+    .btn:hover { background: #000; }
+    .btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .btn.disabled { background: #8c959f; cursor: default; }
+    section { padding: 36px 0; }
+    section.alt { background: var(--bg-alt); }
+    h2 { font-size: 1.6rem; text-align: center; margin: 0 0 22px; }
+    h3 { font-size: 1.2rem; margin: 28px 0 10px; }
+    p { margin: 0 0 14px; }
+    .abstract p { text-align: justify; }
+    figure { margin: 24px 0; text-align: center; }
+    figure img { max-width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--border); background: #fff; }
+    figcaption { color: var(--muted); font-size: 0.92rem; margin-top: 8px; text-align: left; }
+    .highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 8px; }
+    .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+    .stat .num { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1.2; }
+    .stat .lbl { color: var(--muted); font-size: 0.9rem; }
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.93rem; background: #fff; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: center; white-space: nowrap; }
+    th { background: var(--bg-alt); font-weight: 600; }
+    td:first-child, th:first-child { text-align: left; }
+    tr.best td { font-weight: 600; background: var(--accent-soft); }
+    tr.ref td { color: var(--muted); font-style: italic; }
+    .note { font-size: 0.88rem; color: var(--muted); }
+    ul.contrib li { margin-bottom: 8px; }
+    .models { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .model { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: #fff; }
+    .model h4 { margin: 0 0 6px; font-size: 1rem; }
+    .model p { margin: 0 0 8px; font-size: 0.9rem; color: var(--muted); }
+    .model code { font-size: 0.8rem; word-break: break-all; }
+    pre {
+      background: #0d1117; color: #e6edf3; padding: 16px; border-radius: 8px;
+      overflow-x: auto; font-size: 0.85rem; line-height: 1.5; text-align: left;
+    }
+    .bibtex { position: relative; }
+    .copy {
+      position: absolute; top: 10px; right: 10px; background: #30363d; color: #e6edf3;
+      border: 0; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem;
+    }
+    nav.toc { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: 0.92rem; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(255,255,255,0.96); z-index: 10; }
+    nav.toc a { text-decoration: none; color: var(--muted); }
+    nav.toc a:hover { color: var(--accent); }
+    footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 32px 0 48px; }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="venue">ACM TALLIP &middot; Accepted 2026</span>
+    <h1 class="title">Optimizing Semantic Retrieval for Bengali: A Comparative Analysis of Monolingual and Multilingual Embeddings with Matryoshka Representation Learning</h1>
+    <p class="authors">
+      <a href="https://orcid.org/0009-0005-7026-3003">Koshik Debanath</a> &nbsp;&middot;&nbsp;
+      <a href="https://orcid.org/0000-0003-4674-0365">Azmain Yakin Srizon</a>
+    </p>
+    <p class="affil">Department of Computer Science and Engineering,<br>Rajshahi University of Engineering and Technology (RUET), Bangladesh</p>
+    <div class="buttons">
+      <span class="btn disabled" title="ACM DOI will be added after publication">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>Paper (coming soon)
+      </span>
+      <a class="btn" href="https://github.com/kowshik24/Bangla-Embedding">
+        <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Code
+      </a>
+      <a class="btn" href="https://huggingface.co/Kowshik24">
+        <span aria-hidden="true">🤗</span>Models
+      </a>
+      <a class="btn" href="https://huggingface.co/datasets/sartajekram/BanglaRQA">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 3.79 2 6v12c0 2.21 4.48 4 10 4s10-1.79 10-4V6c0-2.21-4.48-4-10-4zm0 2c4.42 0 8 1.34 8 2s-3.58 2-8 2-8-1.34-8-2 3.58-2 8-2zm8 14c0 .66-3.58 2-8 2s-8-1.34-8-2v-2.23C5.61 16.53 8.66 17 12 17s6.39-.47 8-1.23V18zm0-5c0 .66-3.58 2-8 2s-8-1.34-8-2v-2.23C5.61 11.53 8.66 12 12 12s6.39-.47 8-1.23V13z"/></svg>BanglaRQA
+      </a>
+      <a class="btn" href="#bibtex">
+        <svg viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>BibTeX
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#abstract">Abstract</a>
+  <a href="#highlights">Highlights</a>
+  <a href="#method">Method</a>
+  <a href="#results">Results</a>
+  <a href="#ablation">Ablation</a>
+  <a href="#efficiency">Efficiency</a>
+  <a href="#rag">RAG</a>
+  <a href="#models">Models</a>
+  <a href="#bibtex">Citation</a>
+</nav>
+
+<section id="abstract">
+  <div class="wrap abstract">
+    <h2>Abstract</h2>
+    <p>Effective semantic retrieval remains the primary bottleneck for Bengali Retrieval-Augmented Generation (RAG) systems. While general-purpose multilingual models exist, they often lack the specific semantic alignment required for high-precision tasks. This paper conducts a comparative study of three embedding architectures&mdash;monolingual (<code>shihab17</code>), distilled multilingual (<code>distiluse</code>), and paraphrase-focused (<code>mpnet</code>)&mdash;to identify the optimal foundation for Bengali retrieval. We fine-tune these models on BanglaRQA using Multiple Negatives Ranking Loss wrapped with Matryoshka Representation Learning (MRL).</p>
+    <p>On the primary BanglaRQA test regime of 1,124 answerable queries, the fine-tuned <code>mpnet</code> model achieves the strongest dense-retrieval result, with NDCG@10 of <b>0.6139</b>, statistically outperforming the monolingual baseline (p &lt; 0.001). A lexical BM25 baseline is also strong on this factoid Wikipedia setting, reaching NDCG@10 of <b>0.9142</b>; this clarifies that dense fine-tuning is most relevant where semantic matching, compression, and downstream RAG integration are required rather than as a universal replacement for lexical retrieval. In a separate 1,124-document deployment-efficiency regime, MPNet-FT reaches NDCG@10 of <b>0.8114</b>. The MRL-trained MPNet model retains <b>96.1%</b> of its 768-dimensional retrieval effectiveness at just <b>128 dimensions</b>, reducing vector storage by 83.3% while preserving most retrieval quality.</p>
+  </div>
+</section>
+
+<section id="highlights" class="alt">
+  <div class="wrap">
+    <h2>Key Highlights</h2>
+    <div class="highlights">
+      <div class="stat"><div class="num">+127%</div><div class="lbl">NDCG@10 gain for MPNet after fine-tuning (0.2695 &rarr; 0.6139)</div></div>
+      <div class="stat"><div class="num">96.1%</div><div class="lbl">Retrieval quality retained at 128d vs. 768d</div></div>
+      <div class="stat"><div class="num">83.3%</div><div class="lbl">Vector storage reduction (3.29 MB &rarr; 0.55 MB)</div></div>
+      <div class="stat"><div class="num">p &lt; 0.001</div><div class="lbl">MPNet-FT vs. Shihab17-FT (Wilcoxon signed-rank)</div></div>
+    </div>
+    <h3>Contributions</h3>
+    <ul class="contrib">
+      <li><b>Controlled architecture benchmark.</b> Monolingual, distilled-multilingual, and paraphrase-multilingual encoders are fine-tuned with an identical recipe on BanglaRQA, isolating the effect of architectural priors on Bengali retrieval.</li>
+      <li><b>Matryoshka efficiency analysis.</b> Saturation, retention, storage-cost, and MNRL-only ablation studies show MRL keeps low-dimensional prefixes useful (MPNet: 86.0% retention at 64d vs. 77.7% without MRL).</li>
+      <li><b>Downstream RAG check.</b> A RAGAS evaluation with a fixed FAISS + GPT-3.5 pipeline, plus bilingual qualitative and error analyses (tokenization, lexical bias, negation at 64d).</li>
+      <li><b>Honest baselines.</b> A BM25 lexical baseline is reported alongside dense models, motivating hybrid dense&ndash;lexical retrieval for factoid Bengali QA.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <h2>Method</h2>
+    <figure>
+      <img src="static/images/architecture.png" alt="Fine-tuning architecture: BanglaRQA question-context pairs feed three base encoders, mean pooling, and a Matryoshka-wrapped Multiple Negatives Ranking Loss at 768/512/256/128/64 dimensions." loading="lazy">
+      <figcaption><b>Figure 1.</b> Comparative fine-tuning pipeline. Three base models share a Siamese bi-encoder setup with mean pooling and a Matryoshka-wrapped Multiple Negatives Ranking Loss computed at nested dimensions {768, 512, 256, 128, 64}.</figcaption>
+    </figure>
+    <p>Given a question&ndash;passage pair, MNRL treats the gold passage as the positive and all other in-batch passages as negatives. MRL computes this loss on every embedding prefix <i>z</i><sub>1:m</sub> for <i>m</i> &isin; <i>M</i> and sums them, forcing the most salient semantics into the first dimensions so embeddings can be truncated at inference time without retraining.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Base model</th><th>Type</th><th>Dim.</th></tr></thead>
+        <tbody>
+          <tr><td><code>shihab17/bangla-sentence-transformer</code></td><td>Monolingual (XLM-R, distilled)</td><td>768</td></tr>
+          <tr><td><code>distiluse-base-multilingual-cased-v1</code></td><td>Distilled multilingual USE</td><td>512</td></tr>
+          <tr><td><code>paraphrase-multilingual-mpnet-base-v2</code></td><td>Paraphrase multilingual MPNet</td><td>768</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><b>Data.</b> BanglaRQA (Bengali Wikipedia QA), filtered to <code>is_answerable=1</code>: 10,134 train+validation pairs for fine-tuning and 1,124 held-out test queries. <b>Training.</b> 4 epochs, effective batch 128 (32 &times; 4 grad. accumulation), LR 2e-5, cosine schedule, 10% warmup, AdamW, max length 512, FP32, single NVIDIA T4.</p>
+  </div>
+</section>
+
+<section id="results" class="alt">
+  <div class="wrap">
+    <h2>Retrieval Results</h2>
+    <p>Regime A: 1,124 answerable BanglaRQA test queries against 11,258 row-level passage candidates. Scores at each model's maximum dimension.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Dim</th><th>NDCG@10</th><th>MRR@10</th><th>MAP@100</th><th>Acc@10</th><th>P@10</th><th>R@10</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DistilUSE (base)</td><td>512</td><td>0.0037</td><td>0.0036</td><td>0.0056</td><td>0.0044</td><td>0.0014</td><td>0.0040</td></tr>
+          <tr><td>DistilUSE-FT</td><td>512</td><td>0.4213</td><td>0.3955</td><td>0.4248</td><td>0.4698</td><td>0.1770</td><td>0.4592</td></tr>
+          <tr><td>Shihab17 (base)</td><td>768</td><td>0.1599</td><td>0.1411</td><td>0.1651</td><td>0.1993</td><td>0.0715</td><td>0.1889</td></tr>
+          <tr><td>Shihab17-FT</td><td>768</td><td>0.5638</td><td>0.5179</td><td>0.5586</td><td>0.6557</td><td>0.2424</td><td>0.6323</td></tr>
+          <tr><td>MPNet (base)</td><td>768</td><td>0.2695</td><td>0.2413</td><td>0.2761</td><td>0.3283</td><td>0.1201</td><td>0.3120</td></tr>
+          <tr class="best"><td>MPNet-FT &dagger;</td><td>768</td><td>0.6139</td><td>0.5712</td><td>0.6094</td><td>0.6913</td><td>0.2593</td><td>0.6762</td></tr>
+          <tr class="ref"><td>BM25 (lexical)</td><td>&ndash;</td><td>0.9142</td><td>0.8910</td><td>0.9053</td><td>0.9537</td><td>0.3631</td><td>0.9476</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">&dagger; Best dense model; significantly better than Shihab17-FT (Wilcoxon signed-rank, p = 7.81&times;10<sup>-6</sup>) and DistilUSE-FT (p = 1.00&times;10<sup>-47</sup>). BM25 is very strong on factoid Wikipedia QA due to high entity/surface-term overlap.</p>
+    <figure>
+      <img src="static/images/dense_performance_v2.png" alt="Fine-tuned dense retrieval performance across embedding dimensions for NDCG@10, MRR@10, MAP@100 and Accuracy@1." loading="lazy">
+      <figcaption><b>Figure 2.</b> Fine-tuned dense-retrieval performance across embedding dimensions. MPNet leads on every metric and at every truncation level.</figcaption>
+    </figure>
+    <figure>
+      <img src="static/images/base_vs_finetuned_v2.png" alt="Base vs fine-tuned NDCG@10 and Recall@10 across dimensions for all three models." loading="lazy">
+      <figcaption><b>Figure 3.</b> Base vs. fine-tuned models from 64d to 768d. Fine-tuned Shihab17 at 64d (NDCG@10 0.4783) already beats the full 768d base MPNet.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="ablation">
+  <div class="wrap">
+    <h2>MNRL-only Ablation: What Does MRL Buy?</h2>
+    <p>MNRL-only training slightly improves full-dimension scores, but MRL substantially preserves quality under truncation&mdash;the property that matters for compressed vector indexes.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Model</th><th>Objective</th><th>Full NDCG@10</th><th>128d NDCG@10</th><th>128d Ret.</th><th>64d Ret.</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>MPNet</td><td>MNRL + MRL</td><td>0.6139</td><td>0.5783</td><td>94.2%</td><td>86.0%</td></tr>
+          <tr><td>MPNet</td><td>MNRL only</td><td>0.6340</td><td>0.5684</td><td>89.7%</td><td>77.7%</td></tr>
+          <tr class="best"><td>Shihab17</td><td>MNRL + MRL</td><td>0.5638</td><td>0.5268</td><td>93.4%</td><td>84.8%</td></tr>
+          <tr><td>Shihab17</td><td>MNRL only</td><td>0.5784</td><td>0.5356</td><td>92.6%</td><td>79.5%</td></tr>
+          <tr class="best"><td>DistilUSE</td><td>MNRL + MRL</td><td>0.4213</td><td>0.4004</td><td>95.0%</td><td>86.9%</td></tr>
+          <tr><td>DistilUSE</td><td>MNRL only</td><td>0.4526</td><td>0.4072</td><td>90.0%</td><td>71.6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure>
+      <img src="static/images/mnrl_mrl_ablation_retention.png" alt="Retention curves comparing MNRL-only and MNRL+MRL objectives across dimensions." loading="lazy">
+      <figcaption><b>Figure 4.</b> Retention relative to full-dimensional NDCG@10 for MNRL-only vs. MNRL+MRL.</figcaption>
+    </figure>
+    <figure>
+      <img src="static/images/paper_plot_saturation_lines.png" alt="Saturation curves of retrieval metrics versus embedding dimension." loading="lazy">
+      <figcaption><b>Figure 5.</b> Performance saturation across dimensions. Returns diminish beyond 256d; MPNet reaches near-peak performance earliest.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="efficiency" class="alt">
+  <div class="wrap">
+    <h2>Deployment Efficiency</h2>
+    <p>Regime B: storage vs. accuracy on a 1,124-document index (float32 vectors).</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Config</th><th>Dim</th><th>Index size</th><th>NDCG@10</th><th>Retention</th></tr></thead>
+        <tbody>
+          <tr class="ref"><td>MPNet-Base</td><td>768</td><td>3.29 MB</td><td>0.4715</td><td>&ndash;</td></tr>
+          <tr><td>MPNet-FT</td><td>768</td><td>3.29 MB</td><td>0.8114</td><td>100.0%</td></tr>
+          <tr><td>MPNet-FT</td><td>512</td><td>2.20 MB</td><td>0.8072</td><td>99.5%</td></tr>
+          <tr><td>MPNet-FT</td><td>256</td><td>1.10 MB</td><td>0.7918</td><td>97.6%</td></tr>
+          <tr class="best"><td>MPNet-FT</td><td>128</td><td>0.55 MB</td><td>0.7796</td><td>96.1%</td></tr>
+          <tr><td>MPNet-FT</td><td>64</td><td>0.27 MB</td><td>0.7438</td><td>91.7%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure>
+      <img src="static/images/efficiency-tradeoff.png" alt="Storage footprint versus NDCG@10 showing 128d as the sweet spot." loading="lazy">
+      <figcaption><b>Figure 6.</b> Efficiency&ndash;accuracy trade-off. 128d is the operational sweet spot; even 64d MPNet-FT beats the 768d base model. Negation-sensitive queries degrade at 64d, so 128d is the recommended minimum.</figcaption>
+    </figure>
+    <figure>
+      <img src="static/images/model_performance.png" alt="MTEB Bengali task scores per model." loading="lazy">
+      <figcaption><b>Figure 7.</b> Transfer to MTEB Bengali tasks (BengaliDocumentClassification, BengaliHateSpeechClassification, Tatoeba). MPNet-FT is strongest across tasks.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="rag">
+  <div class="wrap">
+    <h2>Downstream RAG Evaluation</h2>
+    <p>Regime C: FAISS index (500-char chunks, 50 overlap, top-k=3), <code>gpt-3.5-turbo</code> generator at temperature 0, Bengali answer-only-from-context prompt, RAGAS 0.1.21 metrics on 10 Bengali factual queries. This is a sanity check; confidence intervals are wide.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Retriever</th><th>Context Precision</th><th>Context Recall</th><th>Faithfulness</th><th>Answer Relevancy</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>MPNet-FT</td><td>0.750 &plusmn; 0.263</td><td>0.900 &plusmn; 0.196</td><td>0.700 &plusmn; 0.299</td><td>0.421 &plusmn; 0.276</td></tr>
+          <tr><td>Shihab17-FT</td><td>0.650 &plusmn; 0.294</td><td>0.800 &plusmn; 0.261</td><td>0.600 &plusmn; 0.320</td><td>0.249 &plusmn; 0.250</td></tr>
+          <tr><td>DistilUSE-FT</td><td>0.450 &plusmn; 0.308</td><td>0.600 &plusmn; 0.320</td><td>0.500 &plusmn; 0.327</td><td>0.264 &plusmn; 0.264</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure>
+      <img src="static/images/ragas_aggregate_heatmap.png" alt="Heatmap of RAGAS scores by retriever model." loading="lazy">
+      <figcaption><b>Figure 8.</b> Aggregate RAGAS scores by retriever.</figcaption>
+    </figure>
+    <h3>Example</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Query</th><th>Retriever</th><th>Generated answer</th></tr></thead>
+        <tbody>
+          <tr><td>বিশ্বের প্রথম কম্পিউটার কে তৈরি করেন?<br><i>Who created the first computer?</i></td><td>MPNet-FT</td><td>বিশ্বের প্রথম কম্পিউটার চার্লস ব্যাবেজ তৈরি করেন।<br><i>Charles Babbage created the first computer.</i> ✓</td></tr>
+          <tr><td>বিশ্বের প্রথম কম্পিউটার কে তৈরি করেন?<br><i>Who created the first computer?</i></td><td>DistilUSE-FT</td><td>আমি জানি না।<br><i>I do not know.</i> ✗ (answer entity not retrieved)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="models" class="alt">
+  <div class="wrap">
+    <h2>Released Models</h2>
+    <div class="models">
+      <div class="model">
+        <h4>MPNet-FT (recommended)</h4>
+        <p>Fine-tuned paraphrase-multilingual-mpnet-base-v2 &middot; 768d, Matryoshka</p>
+        <a href="https://huggingface.co/Kowshik24/bangla-sentence-transformer-ft-matryoshka-paraphrase-multilingual-mpnet-base-v2"><code>Kowshik24/bangla-sentence-transformer-ft-matryoshka-paraphrase-multilingual-mpnet-base-v2</code></a>
+      </div>
+      <div class="model">
+        <h4>Shihab17-FT</h4>
+        <p>Fine-tuned shihab17/bangla-sentence-transformer &middot; 768d, Matryoshka</p>
+        <a href="https://huggingface.co/Kowshik24/bangla-sentence-transformer-ft-matryoshka"><code>Kowshik24/bangla-sentence-transformer-ft-matryoshka</code></a>
+      </div>
+      <div class="model">
+        <h4>DistilUSE-FT</h4>
+        <p>Fine-tuned distiluse-base-multilingual-cased-v1 &middot; 512d, Matryoshka</p>
+        <a href="https://huggingface.co/Kowshik24/bangla-sentence-transformer-ft-matryoshka-distiluse-base-multilingual-cased-v1"><code>Kowshik24/bangla-sentence-transformer-ft-matryoshka-distiluse-base-multilingual-cased-v1</code></a>
+      </div>
+    </div>
+    <h3>Quick start</h3>
+<pre><code>from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer(
+    "Kowshik24/bangla-sentence-transformer-ft-matryoshka-paraphrase-multilingual-mpnet-base-v2",
+    truncate_dim=128,  # Matryoshka: 128d keeps ~96% of 768d quality
+)
+
+query = "বিশ্বের প্রথম কম্পিউটার কে তৈরি করেন?"
+passages = [
+    "চার্লস ব্যাবেজ ১৮৩৭ সালে অ্যানালিটিক্যাল ইঞ্জিনের নকশা করেন।",
+    "রায়পুর ছত্তীসগঢ় রাজ্যের রাজধানী।",
+]
+q = model.encode(query, normalize_embeddings=True)
+p = model.encode(passages, normalize_embeddings=True)
+print(model.similarity(q, p))</code></pre>
+  </div>
+</section>
+
+<section id="bibtex">
+  <div class="wrap">
+    <h2>Citation</h2>
+    <div class="bibtex">
+      <button class="copy" onclick="navigator.clipboard.writeText(document.getElementById('bib').innerText);this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1500)">Copy</button>
+<pre id="bib">@article{debanath2026optimizing,
+  title   = {Optimizing Semantic Retrieval for Bengali: A Comparative Analysis of
+             Monolingual and Multilingual Embeddings with Matryoshka
+             Representation Learning},
+  author  = {Debanath, Koshik and Srizon, Azmain Yakin},
+  journal = {ACM Transactions on Asian and Low-Resource Language Information Processing},
+  year    = {2026},
+  note    = {Accepted}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 Koshik Debanath &amp; Azmain Yakin Srizon &middot; Rajshahi University of Engineering and Technology<br>
+    Code released on <a href="https://github.com/kowshik24/Bangla-Embedding">GitHub</a>.
+  </div>
+</footer>
+
+</body>
+</html>
